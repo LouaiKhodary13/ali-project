@@ -1,0 +1,34 @@
+// /types/index.ts
+export interface Customer {
+  cust_id: string;
+  cust_name: string;
+  cust_adr: string;
+  cust_phone: string | number;
+  cust_note?: string;
+}
+
+export interface Product {
+  prod_id: string;
+  prod_name: string;
+  prod_quant: number;
+  prod_price: number;
+  prod_note?: string;
+}
+
+export interface Bill {
+  bill_id: string;
+  cust_id: string;
+  prod_ids: string[]; // product ids array
+  bill_sum: number;
+  bill_date: string; // ISO date string
+  bill_note?: string;
+}
+
+export interface Transaction {
+  tran_id: string;
+  prod_ids: string[]; // array
+  tran_source: string;
+  tran_cost: number;
+  tran_date: string;
+  tran_note?: string;
+}

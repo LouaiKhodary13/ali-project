@@ -20,6 +20,7 @@ export const ProductsTable: React.FC<Props> = ({
           <th className='p-2 text-left'>Product Name</th>
           <th className='p-2 text-left'>Quantity</th>
           <th className='p-2 text-left'>Price</th>
+          <th className='p-2 text-left'>Note</th>
           <th className='p-2 text-left'>Actions</th>
         </tr>
       </thead>
@@ -28,6 +29,7 @@ export const ProductsTable: React.FC<Props> = ({
           <tr key={p.prod_id} className='border-b'>
             <td className='p-2'>{p.prod_name}</td>
             <td className='p-2'>{p.prod_quant}</td>
+            <td className='p-2'>{p.prod_note}</td>
             <td className='p-2'>{p.prod_price}</td>
             <td className='p-2'>
               <button className='mr-2 underline' onClick={() => onEdit?.(p)}>

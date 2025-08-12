@@ -21,40 +21,80 @@ export const TransactionsTable: React.FC<Props> = ({
   };
 
   return (
-    <table className='min-w-full text-sm border'>
-      <thead>
-        <tr>
-          <th className='p-2 text-left'>Products</th>
-          <th className='p-2 text-left'>Source</th>
-          <th className='p-2 text-left'>Cost</th>
-          <th className='p-2 text-left'>Date</th>
-          <th className='p-2 text-left'>Note</th>
-          <th className='p-2 text-left'>Actions</th>
-        </tr>
-      </thead>
-      <tbody>
-        {transactions.map((t) => (
-          <tr key={t.tran_id} className='border-b'>
-            <td className='p-2'>{t.prod_ids.map(getProductName).join(', ')}</td>
-            <td className='p-2'>{t.tran_source}</td>
-            <td className='p-2'>{t.tran_cost}</td>
-            <td className='p-2'>
-              {new Date(t.tran_date).toLocaleDateString()}
-            </td>
-            <td className='p-2'>{t.tran_note}</td>
-            <td className='p-2'>
-              <button className='mr-2 underline' onClick={() => onEdit?.(t)}>
-                Edit
-              </button>
-              <button
-                className='text-red-600'
-                onClick={() => onDelete?.(t.tran_id)}>
-                Delete
-              </button>
-            </td>
+    <div className='relative overflow-x-auto shadow-md sm:rounded-lg'>
+      <table className='w-full text-sm text-left rtl:text-right text-gray-500 dark:text-white'>
+        <thead className='text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400'>
+          <tr>
+            <th scope='col' className='px-6 py-3'>
+              Products
+            </th>
+            <th scope='col' className='px-6 py-3'>
+              Source
+            </th>
+            <th scope='col' className='px-6 py-3'>
+              Cost
+            </th>
+            <th scope='col' className='px-6 py-3'>
+              Date
+            </th>
+            <th scope='col' className='px-6 py-3'>
+              Note
+            </th>
+            <th scope='col' className='px-6 py-3'>
+              Actions
+            </th>
           </tr>
-        ))}
-      </tbody>
-    </table>
+        </thead>
+        <tbody>
+          {transactions.map((t, i) => (
+            <tr
+              key={t.tran_id}
+              className={`border-b border-gray-200 dark:border-gray-700 ${
+                i % 2 === 0
+                  ? 'bg-white dark:bg-gray-800'
+                  : 'bg-gray-50 dark:bg-gray-900'
+              }`}>
+              <td
+                scope='row'
+                className='px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white'>
+                {t.prod_ids.map(getProductName).join(', ')}
+              </td>
+              <td
+                scope='row'
+                className='px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white'>
+                {t.tran_source}
+              </td>
+              <td
+                scope='row'
+                className='px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white'>
+                {t.tran_cost}
+              </td>
+              <td
+                scope='row'
+                className='px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white'>
+                {new Date(t.tran_date).toLocaleDateString()}
+              </td>
+              <td
+                scope='row'
+                className='px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white'>
+                {t.tran_note}
+              </td>
+              <td
+                scope='row'
+                className='px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white'>
+                <button className='mr-2 underline' onClick={() => onEdit?.(t)}>
+                  Edit
+                </button>
+                <button
+                  className='font-medium text-red-600 dark:text-red-500 hover:underline'
+                  onClick={() => onDelete?.(t.tran_id)}>
+                  Delete
+                </button>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
   );
 };

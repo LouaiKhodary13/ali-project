@@ -17,7 +17,7 @@ export const TransactionsTable: React.FC<Props> = ({
   // Declare getProductName function inside component scope
   const getProductName = (id: string) => {
     const product = products.find((p) => p.prod_id === id);
-    return product ? product.prod_name : id; // fallback to id if not found
+    return product ? product.prod_name : 'Deleted product';
   };
 
   return (

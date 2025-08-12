@@ -8,7 +8,7 @@ import { ProductsTable } from './components/ProductsTable ';
 import { useCustomers } from './components/hooks/useCustomers';
 import { CustomersTable } from '@/app/components/CustomersTable';
 import { FormCustomer } from '@/app/components/FormCustomer';
-import { Customer, Bill, Transaction } from '@/app/types';
+import { Customer, Bill, Transaction, Product } from '@/app/types';
 import { useBills } from './components/hooks/useBills';
 import { BillsTable } from '@/app/components/BillsTable';
 import { useTransactions } from './components/hooks/useTransactions';

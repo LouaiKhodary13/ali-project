@@ -38,30 +38,18 @@ export const BillsTable: React.FC<Props> = ({
           <tr key={b.bill_id} className='border-b'>
             {/* Customer Dropdown */}
             <td className='p-2'>
-              {customers.length > 0 ? (
-                <select
-                  value={b.cust_id ?? ''}
-                  onChange={(e) =>
-                    onCustomerChange?.(b.bill_id, e.target.value)
-                  }
-                  className='border rounded p-1 bg-amber-800'>
-                  <option value=''>Select customer</option>
-                  {customers.map((c) => (
-                    <option key={c.cust_id} value={c.cust_id}>
-                      {c.cust_name}
-                    </option>
-                  ))}
-                </select>
-              ) : (
-                <span>{b.cust_id || '—'}</span>
-              )}
+              {customers.length > 0
+                ? customers.find((c) => c.cust_id === b.cust_id)?.cust_name ??
+                  b.cust_id ??
+                  '—'
+                : b.cust_id ?? '—'}
             </td>
-
             <td className='p-2'>
               {(b.prod_ids ?? [])
                 .map(
                   (id) =>
-                    products.find((p) => p.prod_id === id)?.prod_name || id
+                    products.find((p) => p.prod_id === id)?.prod_name ||
+                    'Deleted product'
                 )
                 .join(', ') || '—'}
             </td>

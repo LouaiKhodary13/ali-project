@@ -19,16 +19,26 @@ export const FormBill: React.FC<Props> = ({
   const [custId, setCustId] = useState(initial.cust_id || '');
   const [prodIds, setProdIds] = useState<string[]>(initial.prod_ids || []);
   const [billSum, setBillSum] = useState(initial.bill_sum?.toString() || '');
-  const [billDate, setBillDate] = useState(
-    initial.bill_date?.slice(0, 10) || ''
-  );
+  const [billDate, setBillDate] = useState(toDateInputValue(initial.bill_date));
   const [billNote, setBillNote] = useState(initial.bill_note || '');
+
+  function toDateInputValue(date?: string | Date) {
+    if (!date) return '';
+    if (typeof date === 'string') {
+      return date.slice(0, 10);
+    }
+    if (date instanceof Date) {
+      // convert Date object to YYYY-MM-DD
+      return date.toISOString().slice(0, 10);
+    }
+    return '';
+  }
 
   useEffect(() => {
     setCustId(initial.cust_id || '');
     setProdIds(initial.prod_ids || []);
     setBillSum(initial.bill_sum?.toString() || '');
-    setBillDate(initial.bill_date?.slice(0, 10) || '');
+    setBillDate(toDateInputValue(initial.bill_date));
     setBillNote(initial.bill_note || '');
   }, [initial]);
 

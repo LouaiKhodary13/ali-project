@@ -18,15 +18,15 @@ export interface Product {
 export interface Bill {
   bill_id: string;
   cust_id: string;
-  prod_ids: string[]; // product ids array
+  prod_ids: string[];
   bill_sum: number;
-  bill_date: string; // ISO date string
+  bill_date: string;
   bill_note?: string;
 }
 
 export interface Transaction {
   tran_id: string;
-  prod_ids: string[]; // array
+  prod_ids: string[];
   tran_source: string;
   tran_cost: number;
   tran_date: string;

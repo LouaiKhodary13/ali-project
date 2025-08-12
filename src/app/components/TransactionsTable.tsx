@@ -1,21 +1,28 @@
-// components/TransactionsTable.tsx
 import React from 'react';
-import { Transaction } from '@/app/types';
+import { Transaction, Product } from '@/app/types';
 
 type Props = {
   transactions: Transaction[];
+  products: Product[]; // products list passed as prop
   onEdit?: (t: Transaction) => void;
   onDelete?: (id: string) => void;
 };
 
 export const TransactionsTable: React.FC<Props> = ({
   transactions,
+  products,
   onEdit,
   onDelete,
 }) => {
+  // Declare getProductName function inside component scope
+  const getProductName = (id: string) => {
+    const product = products.find((p) => p.prod_id === id);
+    return product ? product.prod_name : id; // fallback to id if not found
+  };
+
   return (
     <table className='min-w-full text-sm border'>
-      <thead className=''>
+      <thead>
         <tr>
           <th className='p-2 text-left'>Products</th>
           <th className='p-2 text-left'>Source</th>
@@ -28,7 +35,7 @@ export const TransactionsTable: React.FC<Props> = ({
       <tbody>
         {transactions.map((t) => (
           <tr key={t.tran_id} className='border-b'>
-            <td className='p-2'>{t.prod_ids.join(', ')}</td>
+            <td className='p-2'>{t.prod_ids.map(getProductName).join(', ')}</td>
             <td className='p-2'>{t.tran_source}</td>
             <td className='p-2'>{t.tran_cost}</td>
             <td className='p-2'>

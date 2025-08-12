@@ -220,6 +220,7 @@ export default function Home() {
           )}
 
           <TransactionsTable
+            products={products}
             transactions={transactions}
             onEdit={(t) => {
               setEditingTransaction(t);

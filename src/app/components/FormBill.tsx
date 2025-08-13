@@ -71,7 +71,7 @@ export const FormBill: React.FC<Props> = ({
   return (
     <form onSubmit={submit} className='space-y-2 p-4 border rounded'>
       <div>
-        <label className='block text-md font-bold  mb-2'>
+        <label className='block text-sm font-medium'>
           {ar.strings.Customer}
         </label>
         <select
@@ -89,10 +89,10 @@ export const FormBill: React.FC<Props> = ({
       </div>
 
       <div>
-        <label className='block text-md  font-bold'>{ar.tabs.products}</label>
-        <div className='border rounded p-2 max-h-48 overflow-y-auto  mb-2 mt-2'>
+        <label className='block text-sm font-medium'>Products</label>
+        <div className='border rounded p-2 max-h-48 overflow-y-auto'>
           {products.map((p) => (
-            <label key={p.prod_id} className='flex items-center gap-2 text-md'>
+            <label key={p.prod_id} className='flex items-center gap-2'>
               <input
                 type='checkbox'
                 value={p.prod_id}
@@ -112,9 +112,7 @@ export const FormBill: React.FC<Props> = ({
       </div>
 
       <div>
-        <label className='block text-md  font-bold mb-4 mt-4'>
-          {ar.strings.Total}
-        </label>
+        <label className='block text-sm font-medium'>{ar.strings.Total}</label>
         <input
           type='number'
           value={billSum}
@@ -125,9 +123,7 @@ export const FormBill: React.FC<Props> = ({
       </div>
 
       <div>
-        <label className='block text-md font-bold  mb-2 mt-2'>
-          {ar.strings.Date}
-        </label>
+        <label className='block text-sm font-medium'>{ar.strings.Date}</label>
         <input
           type='date'
           value={billDate}
@@ -138,9 +134,7 @@ export const FormBill: React.FC<Props> = ({
       </div>
 
       <div>
-        <label className='block text-md font-bold  mb-2 mt-2'>
-          {ar.strings.Note}
-        </label>
+        <label className='block text-sm font-medium'>{ar.strings.Note}</label>
         <input
           type='text'
           value={billNote}
@@ -152,13 +146,13 @@ export const FormBill: React.FC<Props> = ({
       <div className='flex gap-2'>
         <button
           type='submit'
-          className='px-3 py-1 bg-blue-600 text-white rounded  text-md font-bold  mb-2 mt-2'>
+          className='px-3 py-1 bg-blue-600 text-white rounded'>
           {ar.buttons.Save}
         </button>
         <button
           type='button'
           onClick={onCancel}
-          className='px-3 py-1 border rounded text-md font-bold  mb-2 mt-2 '>
+          className='px-3 py-1 border rounded'>
           {ar.buttons.Cancel}
         </button>
       </div>

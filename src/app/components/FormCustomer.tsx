@@ -45,9 +45,7 @@ export const FormCustomer: React.FC<Props> = ({
   return (
     <form onSubmit={submit} className='space-y-2 p-4 border rounded'>
       <div>
-        <label className='block text-md font-bold  mb-2 mt-2'>
-          {ar.products.name}
-        </label>
+        <label className='block text-sm'>{ar.products.name}</label>
         <input
           value={name}
           onChange={(e) => setName(e.target.value)}
@@ -55,9 +53,7 @@ export const FormCustomer: React.FC<Props> = ({
         />
       </div>
       <div>
-        <label className='block text-md font-bold  mb-2 mt-2'>
-          {ar.strings.Address}
-        </label>
+        <label className='block text-sm'>{ar.strings.Address}</label>
         <input
           value={adr}
           onChange={(e) => setAdr(e.target.value)}
@@ -65,9 +61,7 @@ export const FormCustomer: React.FC<Props> = ({
         />
       </div>
       <div>
-        <label className='block text-md font-bold  mb-2 mt-2'>
-          {ar.strings.Phone}
-        </label>
+        <label className='block text-sm'>{ar.strings.Phone}</label>
         <input
           value={phone}
           onChange={(e) => setPhone(e.target.value)}
@@ -75,9 +69,7 @@ export const FormCustomer: React.FC<Props> = ({
         />
       </div>
       <div>
-        <label className='block text-md font-bold  mb-2 mt-2'>
-          {ar.strings.Note}
-        </label>
+        <label className='block text-sm'>{ar.strings.Note}</label>
         <input
           value={note}
           onChange={(e) => setNote(e.target.value)}
@@ -85,13 +77,13 @@ export const FormCustomer: React.FC<Props> = ({
         />
       </div>
       <div className='flex gap-2'>
-        <button className='px-3 py-1 bg-blue-600 text-white rounded font-bold '>
+        <button className='px-3 py-1 bg-blue-600 text-white rounded'>
           {ar.buttons.Save}
         </button>
         <button
           type='button'
           onClick={onCancel}
-          className='px-3 py-1 border rounded font-bold '>
+          className='px-3 py-1 border rounded'>
           {ar.buttons.Cancel}
         </button>
       </div>

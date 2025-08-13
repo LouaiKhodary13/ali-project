@@ -64,12 +64,12 @@ export const FormTransaction: React.FC<Props> = ({
   return (
     <form onSubmit={submit} className='space-y-2 p-4 border rounded'>
       <div>
-        <label className='block text-md font-bold  mb-2 mt-2'>
+        <label className='block text-sm font-medium'>
           {ar.strings.Products}
         </label>
         <div className='border rounded p-2 max-h-48 overflow-y-auto'>
           {products.map((p) => (
-            <label key={p.prod_id} className='flex items-center gap-2 '>
+            <label key={p.prod_id} className='flex items-center gap-2'>
               <input
                 type='checkbox'
                 checked={prodIds.includes(p.prod_id)}
@@ -82,7 +82,7 @@ export const FormTransaction: React.FC<Props> = ({
       </div>
 
       <div>
-        <label className='block text-md font-bold  mb-2 mt-2'>
+        <label className='block text-sm font-medium'>
           {ar.transaction.Source}
         </label>
         <input
@@ -95,7 +95,7 @@ export const FormTransaction: React.FC<Props> = ({
       </div>
 
       <div>
-        <label className='block text-md font-bold  mb-2 mt-2'>
+        <label className='block text-sm font-medium'>
           {ar.transaction.Cost}
         </label>
         <input
@@ -108,9 +108,7 @@ export const FormTransaction: React.FC<Props> = ({
       </div>
 
       <div>
-        <label className='block text-md font-bold  mb-2 mt-2'>
-          {ar.strings.Date}
-        </label>
+        <label className='block text-sm font-medium'>{ar.strings.Date}</label>
         <input
           type='date'
           value={date}
@@ -121,27 +119,25 @@ export const FormTransaction: React.FC<Props> = ({
       </div>
 
       <div>
-        <label className='block text-md font-bold  mb-2 mt-2'>
-          {ar.strings.Note}
-        </label>
+        <label className='block text-sm font-medium'>{ar.strings.Note}</label>
         <input
           type='text'
           value={note}
           onChange={(e) => setNote(e.target.value)}
-          className='w-full p-2 border rounded font-bold'
+          className='w-full p-2 border rounded'
         />
       </div>
 
       <div className='flex gap-2'>
         <button
           type='submit'
-          className='px-3 py-1 bg-blue-600 text-white rounded text-md font-bold '>
+          className='px-3 py-1 bg-blue-600 text-white rounded'>
           {ar.buttons.Save}
         </button>
         <button
           type='button'
           onClick={onCancel}
-          className='px-3 py-1 border rounded font-bold text-md'>
+          className='px-3 py-1 border rounded'>
           {ar.buttons.Cancel}
         </button>
       </div>

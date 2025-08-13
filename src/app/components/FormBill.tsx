@@ -1,86 +1,118 @@
 import React, { useState, useEffect } from 'react';
-import { Bill } from '@/app/types';
+import { ar } from '../lang/ar';
+import { Bill, Customer, Product } from '@/app/types';
 
 type Props = {
   initial?: Partial<Omit<Bill, 'bill_id'>>;
   onSubmit: (data: Omit<Bill, 'bill_id'>) => void;
   onCancel?: () => void;
+  customers: Customer[];
+  products: Product[];
 };
 
 export const FormBill: React.FC<Props> = ({
   initial = {},
   onSubmit,
   onCancel,
+  customers,
+  products,
 }) => {
   const [custId, setCustId] = useState(initial.cust_id || '');
-  const [prodIds, setProdIds] = useState(initial.prod_ids?.join(', ') || '');
+  const [prodIds, setProdIds] = useState<string[]>(initial.prod_ids || []);
   const [billSum, setBillSum] = useState(initial.bill_sum?.toString() || '');
-  const [billDate, setBillDate] = useState(
-    initial.bill_date?.slice(0, 10) || ''
-  );
+  const [billDate, setBillDate] = useState(toDateInputValue(initial.bill_date));
   const [billNote, setBillNote] = useState(initial.bill_note || '');
+
+  function toDateInputValue(date?: string | Date) {
+    if (!date) return '';
+    if (typeof date === 'string') {
+      return date.slice(0, 10);
+    }
+    if (date instanceof Date) {
+      // convert Date object to YYYY-MM-DD
+      return date.toISOString().slice(0, 10);
+    }
+    return '';
+  }
 
   useEffect(() => {
     setCustId(initial.cust_id || '');
-    setProdIds(initial.prod_ids?.join(', ') || '');
+    setProdIds(initial.prod_ids || []);
     setBillSum(initial.bill_sum?.toString() || '');
-    setBillDate(initial.bill_date?.slice(0, 10) || '');
+    setBillDate(toDateInputValue(initial.bill_date));
     setBillNote(initial.bill_note || '');
   }, [initial]);
 
   function submit(e: React.FormEvent) {
     e.preventDefault();
-    if (!custId.trim()) return alert('Customer ID is required');
-    if (!prodIds.trim()) return alert('At least one Product ID is required');
+    if (!custId.trim()) return alert('Customer is required');
+    if (prodIds.length === 0)
+      return alert('At least one product must be selected');
     if (!billSum || isNaN(Number(billSum)))
       return alert('Valid bill total is required');
     if (!billDate) return alert('Date is required');
 
     onSubmit({
       cust_id: custId.trim(),
-      prod_ids: prodIds
-        .split(',')
-        .map((id) => id.trim())
-        .filter(Boolean),
+      prod_ids: prodIds,
       bill_sum: Number(billSum),
       bill_date: new Date(billDate).toISOString(),
       bill_note: billNote.trim(),
     });
 
-    // Clear form
+    // clear form if needed
     setCustId('');
-    setProdIds('');
+    setProdIds([]);
     setBillSum('');
     setBillDate('');
     setBillNote('');
   }
 
   return (
-    <form onSubmit={submit} className='space-y-2 p-4 border rounded '>
+    <form onSubmit={submit} className='space-y-2 p-4 border rounded'>
       <div>
-        <label className='block text-sm font-medium'>Customer ID</label>
-        <input
-          type='text'
+        <label className='block text-sm font-medium'>
+          {ar.strings.Customer}
+        </label>
+        <select
           value={custId}
           onChange={(e) => setCustId(e.target.value)}
           className='w-full p-2 border rounded'
-          required
-        />
+          required>
+          <option value=''>{ar.strings.Select_a_customer}</option>
+          {customers.map((c) => (
+            <option key={c.cust_id} value={c.cust_id}>
+              {c.cust_name}
+            </option>
+          ))}
+        </select>
       </div>
+
       <div>
-        <label className='block text-sm font-medium'>
-          Product IDs (comma separated)
-        </label>
-        <input
-          type='text'
-          value={prodIds}
-          onChange={(e) => setProdIds(e.target.value)}
-          className='w-full p-2 border rounded'
-          required
-        />
+        <label className='block text-sm font-medium'>Products</label>
+        <div className='border rounded p-2 max-h-48 overflow-y-auto'>
+          {products.map((p) => (
+            <label key={p.prod_id} className='flex items-center gap-2'>
+              <input
+                type='checkbox'
+                value={p.prod_id}
+                checked={prodIds.includes(p.prod_id)}
+                onChange={(e) => {
+                  if (e.target.checked) {
+                    setProdIds([...prodIds, p.prod_id]);
+                  } else {
+                    setProdIds(prodIds.filter((id) => id !== p.prod_id));
+                  }
+                }}
+              />
+              {p.prod_name}
+            </label>
+          ))}
+        </div>
       </div>
+
       <div>
-        <label className='block text-sm font-medium'>Total</label>
+        <label className='block text-sm font-medium'>{ar.strings.Total}</label>
         <input
           type='number'
           value={billSum}
@@ -89,8 +121,9 @@ export const FormBill: React.FC<Props> = ({
           required
         />
       </div>
+
       <div>
-        <label className='block text-sm font-medium'>Date</label>
+        <label className='block text-sm font-medium'>{ar.strings.Date}</label>
         <input
           type='date'
           value={billDate}
@@ -99,8 +132,9 @@ export const FormBill: React.FC<Props> = ({
           required
         />
       </div>
+
       <div>
-        <label className='block text-sm font-medium'>Note</label>
+        <label className='block text-sm font-medium'>{ar.strings.Note}</label>
         <input
           type='text'
           value={billNote}
@@ -108,17 +142,18 @@ export const FormBill: React.FC<Props> = ({
           className='w-full p-2 border rounded'
         />
       </div>
+
       <div className='flex gap-2'>
         <button
           type='submit'
           className='px-3 py-1 bg-blue-600 text-white rounded'>
-          Save
+          {ar.buttons.Save}
         </button>
         <button
           type='button'
           onClick={onCancel}
           className='px-3 py-1 border rounded'>
-          Cancel
+          {ar.buttons.Cancel}
         </button>
       </div>
     </form>

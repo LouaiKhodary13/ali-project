@@ -1,6 +1,10 @@
 import { db } from "./connection";
 import { Customer, Product, Bill, Transaction } from "@/app/types";
 
+// Database row types (raw data from SQLite)
+type BillRow = Omit<Bill, "prod_ids"> & { prod_ids: string };
+type TransactionRow = Omit<Transaction, "prod_ids"> & { prod_ids: string };
+
 // Customers
 export const customers = {
   create: (data: Customer) => {
@@ -103,17 +107,17 @@ export const bills = {
   },
 
   getAll: (): Bill[] => {
-    const rows = db.prepare("SELECT * FROM bills").all();
-    return rows.map((row: any) => ({
+    const rows = db.prepare("SELECT * FROM bills").all() as BillRow[];
+    return rows.map((row) => ({
       ...row,
       prod_ids: JSON.parse(row.prod_ids),
     })) as Bill[];
   },
 
   getById: (id: string): Bill | undefined => {
-    const row = db
-      .prepare("SELECT * FROM bills WHERE bill_id = ?")
-      .get(id) as any;
+    const row = db.prepare("SELECT * FROM bills WHERE bill_id = ?").get(id) as
+      | BillRow
+      | undefined;
     if (!row) return undefined;
     return {
       ...row,
@@ -122,14 +126,15 @@ export const bills = {
   },
 
   update: (id: string, data: Partial<Bill>) => {
-    const updateData = { ...data };
-    if (updateData.prod_ids) {
-      updateData.prod_ids = JSON.stringify(updateData.prod_ids) as any;
+    const { prod_ids, ...restData } = data;
+    const updateData: Partial<BillRow> = { ...restData };
+    if (prod_ids) {
+      updateData.prod_ids = JSON.stringify(prod_ids);
     }
 
     const fields = Object.keys(updateData).filter((key) => key !== "bill_id");
     const setClause = fields.map((field) => `${field} = ?`).join(", ");
-    const values = fields.map((field) => updateData[field as keyof Bill]);
+    const values = fields.map((field) => updateData[field as keyof BillRow]);
 
     const stmt = db.prepare(`UPDATE bills SET ${setClause} WHERE bill_id = ?`);
     return stmt.run(...values, id);
@@ -158,8 +163,10 @@ export const transactions = {
   },
 
   getAll: (): Transaction[] => {
-    const rows = db.prepare("SELECT * FROM transactions").all();
-    return rows.map((row: any) => ({
+    const rows = db
+      .prepare("SELECT * FROM transactions")
+      .all() as TransactionRow[];
+    return rows.map((row) => ({
       ...row,
       prod_ids: JSON.parse(row.prod_ids),
     })) as Transaction[];
@@ -168,7 +175,7 @@ export const transactions = {
   getById: (id: string): Transaction | undefined => {
     const row = db
       .prepare("SELECT * FROM transactions WHERE tran_id = ?")
-      .get(id) as any;
+      .get(id) as TransactionRow | undefined;
     if (!row) return undefined;
     return {
       ...row,
@@ -177,15 +184,16 @@ export const transactions = {
   },
 
   update: (id: string, data: Partial<Transaction>) => {
-    const updateData = { ...data };
-    if (updateData.prod_ids) {
-      updateData.prod_ids = JSON.stringify(updateData.prod_ids) as any;
+    const { prod_ids, ...restData } = data;
+    const updateData: Partial<TransactionRow> = { ...restData };
+    if (prod_ids) {
+      updateData.prod_ids = JSON.stringify(prod_ids);
     }
 
     const fields = Object.keys(updateData).filter((key) => key !== "tran_id");
     const setClause = fields.map((field) => `${field} = ?`).join(", ");
     const values = fields.map(
-      (field) => updateData[field as keyof Transaction]
+      (field) => updateData[field as keyof TransactionRow]
     );
 
     const stmt = db.prepare(

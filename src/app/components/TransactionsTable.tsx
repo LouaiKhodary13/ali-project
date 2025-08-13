@@ -1,4 +1,5 @@
 import React from 'react';
+import { ar } from '../lang/ar';
 import { Transaction, Product } from '@/app/types';
 
 type Props = {
@@ -26,22 +27,22 @@ export const TransactionsTable: React.FC<Props> = ({
         <thead className='text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400'>
           <tr>
             <th scope='col' className='px-6 py-3'>
-              Products
+              {ar.tabs.products}
             </th>
             <th scope='col' className='px-6 py-3'>
-              Source
+              {ar.transaction.Source}
             </th>
             <th scope='col' className='px-6 py-3'>
-              Cost
+              {ar.transaction.Cost}
             </th>
             <th scope='col' className='px-6 py-3'>
-              Date
+              {ar.strings.Date}
             </th>
             <th scope='col' className='px-6 py-3'>
-              Note
+              {ar.strings.Note}
             </th>
             <th scope='col' className='px-6 py-3'>
-              Actions
+              {ar.strings.Actions}
             </th>
           </tr>
         </thead>
@@ -79,16 +80,16 @@ export const TransactionsTable: React.FC<Props> = ({
                 className='px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white'>
                 {t.tran_note}
               </td>
-              <td
-                scope='row'
-                className='px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white'>
-                <button className='mr-2 underline' onClick={() => onEdit?.(t)}>
-                  Edit
+              <td scope='row' className='px-6 py-4 text-right'>
+                <button
+                  className='font-medium text-blue-600 dark:text-blue-500 hover:underline mr-4 ml-4'
+                  onClick={() => onEdit?.(t)}>
+                  {ar.buttons.Edit}
                 </button>
                 <button
                   className='font-medium text-red-600 dark:text-red-500 hover:underline'
                   onClick={() => onDelete?.(t.tran_id)}>
-                  Delete
+                  {ar.buttons.Delete}
                 </button>
               </td>
             </tr>

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { ar } from '../lang/ar';
 import { Product } from '@/app/types';
 
 type Props = {
@@ -47,7 +48,7 @@ export const FormProduct: React.FC<Props> = ({
   return (
     <form onSubmit={submit} className='space-y-2 p-4 border rounded '>
       <div>
-        <label className='block text-sm font-medium'>Product Name</label>
+        <label className='block text-sm font-medium'>{ar.products.name}</label>
         <input
           type='text'
           value={name}
@@ -57,7 +58,9 @@ export const FormProduct: React.FC<Props> = ({
         />
       </div>
       <div>
-        <label className='block text-sm font-medium'>Quantity</label>
+        <label className='block text-sm font-medium'>
+          {ar.products.quantity}
+        </label>
         <input
           type='number'
           value={quant}
@@ -68,7 +71,10 @@ export const FormProduct: React.FC<Props> = ({
         />
       </div>
       <div>
-        <label className='block text-sm font-medium'>Price</label>
+        <label className='block text-sm font-medium'>
+          {' '}
+          {ar.products.price}
+        </label>
         <input
           type='number'
           value={price}
@@ -80,7 +86,7 @@ export const FormProduct: React.FC<Props> = ({
         />
       </div>
       <div>
-        <label className='block text-sm font-medium'>Note</label>
+        <label className='block text-sm font-medium'>{ar.strings.Note}</label>
         <input
           type='text'
           value={note}
@@ -92,13 +98,13 @@ export const FormProduct: React.FC<Props> = ({
         <button
           type='submit'
           className='px-3 py-1 bg-blue-600 text-white rounded'>
-          Save
+          {ar.buttons.Save}
         </button>
         <button
           type='button'
           onClick={onCancel}
           className='px-3 py-1 border rounded'>
-          Cancel
+          {ar.buttons.Cancel}
         </button>
       </div>
     </form>

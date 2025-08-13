@@ -1,5 +1,6 @@
 // components/BillsTable.tsx
 import React from 'react';
+import { ar } from '../lang/ar';
 import { Bill, Customer, Product } from '@/app/types';
 
 type Props = {
@@ -27,14 +28,14 @@ export const BillsTable: React.FC<Props> = ({
         <thead className='text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400'>
           <tr>
             <th scope='col' className='px-6 py-3'>
-              Customer
+              {ar.strings.Customer}
             </th>
             <th scope='col' className='px-6 py-3'>
-              Products
+              {ar.strings.Products}
             </th>
             <th scope='col' className='px-6 py-3'>
               <div className='flex items-center'>
-                Total
+                {ar.strings.Total}
                 <a href='#'>
                   <svg
                     className='w-3 h-3 ms-1.5'
@@ -48,13 +49,13 @@ export const BillsTable: React.FC<Props> = ({
               </div>
             </th>
             <th scope='col' className='px-6 py-3'>
-              Date
+              {ar.strings.Date}
             </th>
             <th scope='col' className='px-6 py-3'>
-              Note
+              {ar.strings.Note}
             </th>
             <th scope='col' className='px-6 py-3'>
-              Actions
+              {ar.strings.Actions}
             </th>
           </tr>
         </thead>
@@ -108,12 +109,12 @@ export const BillsTable: React.FC<Props> = ({
                 scope='row'
                 className='px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white'>
                 <button className='mr-2 underline' onClick={() => onEdit?.(b)}>
-                  Edit
+                  {ar.buttons.Edit}
                 </button>
                 <button
                   className='px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white'
                   onClick={() => onDelete?.(b.bill_id)}>
-                  Delete
+                  {ar.buttons.Delete}
                 </button>
               </td>
             </tr>

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { ar } from '../lang/ar';
 import { Bill, Customer, Product } from '@/app/types';
 
 type Props = {
@@ -70,13 +71,15 @@ export const FormBill: React.FC<Props> = ({
   return (
     <form onSubmit={submit} className='space-y-2 p-4 border rounded'>
       <div>
-        <label className='block text-sm font-medium'>Customer</label>
+        <label className='block text-sm font-medium'>
+          {ar.strings.Customer}
+        </label>
         <select
           value={custId}
           onChange={(e) => setCustId(e.target.value)}
           className='w-full p-2 border rounded'
           required>
-          <option value=''>Select a customer</option>
+          <option value=''>{ar.strings.Select_a_customer}</option>
           {customers.map((c) => (
             <option key={c.cust_id} value={c.cust_id}>
               {c.cust_name}
@@ -109,20 +112,18 @@ export const FormBill: React.FC<Props> = ({
       </div>
 
       <div>
-        <label className='block text-sm font-medium'>Total</label>
+        <label className='block text-sm font-medium'>{ar.strings.Total}</label>
         <input
           type='number'
           value={billSum}
           onChange={(e) => setBillSum(e.target.value)}
           className='w-full p-2 border rounded'
           required
-          min={0}
-          step='0.01'
         />
       </div>
 
       <div>
-        <label className='block text-sm font-medium'>Date</label>
+        <label className='block text-sm font-medium'>{ar.strings.Date}</label>
         <input
           type='date'
           value={billDate}
@@ -133,7 +134,7 @@ export const FormBill: React.FC<Props> = ({
       </div>
 
       <div>
-        <label className='block text-sm font-medium'>Note</label>
+        <label className='block text-sm font-medium'>{ar.strings.Note}</label>
         <input
           type='text'
           value={billNote}
@@ -146,13 +147,13 @@ export const FormBill: React.FC<Props> = ({
         <button
           type='submit'
           className='px-3 py-1 bg-blue-600 text-white rounded'>
-          Save
+          {ar.buttons.Save}
         </button>
         <button
           type='button'
           onClick={onCancel}
           className='px-3 py-1 border rounded'>
-          Cancel
+          {ar.buttons.Cancel}
         </button>
       </div>
     </form>

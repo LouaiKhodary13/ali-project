@@ -1,6 +1,6 @@
 // src/app/page.tsx
 'use client';
-
+import { ar } from './lang/ar';
 import { useState } from 'react';
 import { useProducts } from './components/hooks/useProducts';
 import { FormProduct } from './components/FormProduct';
@@ -54,7 +54,7 @@ export default function Home() {
               ? 'border-b-2 border-blue-600 font-bold'
               : 'text-gray-500'
           }`}>
-          Customers
+          {ar.tabs.customers}
         </button>
         <button
           onClick={() => setActiveTab('bills')}
@@ -63,7 +63,7 @@ export default function Home() {
               ? 'border-b-2 border-blue-600 font-bold'
               : 'text-gray-500'
           }`}>
-          Bills
+          {ar.tabs.bills}
         </button>
         <button
           onClick={() => setActiveTab('transactions')}
@@ -72,7 +72,7 @@ export default function Home() {
               ? 'border-b-2 border-blue-600 font-bold'
               : 'text-gray-500'
           }`}>
-          Transactions
+          {ar.tabs.transactions}
         </button>
         <button
           onClick={() => setActiveTab('products')}
@@ -81,14 +81,16 @@ export default function Home() {
               ? 'border-b-2 border-blue-600 font-bold'
               : 'text-gray-500'
           }`}>
-          Products
+          {ar.tabs.products}
         </button>
       </div>
 
       {/* Tab Content */}
       {activeTab === 'customers' && (
         <>
-          <h1 className='text-2xl font-bold mb-4'>Customer Management</h1>
+          <h1 className='text-2xl font-bold mb-4'>
+            {ar.titles.Customer_Management}
+          </h1>
 
           {showCustomerForm && (
             <FormCustomer
@@ -113,7 +115,7 @@ export default function Home() {
             <button
               className='mb-4 px-4 py-2 bg-blue-600 text-white rounded'
               onClick={() => setShowCustomerForm(true)}>
-              Add Customer
+              {ar.buttons.Add_Customer}
             </button>
           )}
 
@@ -130,7 +132,9 @@ export default function Home() {
 
       {activeTab === 'bills' && (
         <>
-          <h1 className='text-2xl font-bold mb-4'>Bills Management</h1>
+          <h1 className='text-2xl font-bold mb-4'>
+            {ar.titles.Bills_Management}
+          </h1>
 
           {showBillForm && (
             <FormBill
@@ -157,7 +161,7 @@ export default function Home() {
             <button
               className='mb-4 px-4 py-2 bg-blue-600 text-white rounded'
               onClick={() => setShowBillForm(true)}>
-              Add Bill
+              {ar.buttons.Add_Bill}
             </button>
           )}
 
@@ -189,7 +193,9 @@ export default function Home() {
 
       {activeTab === 'transactions' && (
         <>
-          <h1 className='text-2xl font-bold mb-4'>Transactions Management</h1>
+          <h1 className='text-2xl font-bold mb-4'>
+            {ar.titles.Transactions_Management}
+          </h1>
 
           {showTransactionForm && (
             <FormTransaction
@@ -215,7 +221,7 @@ export default function Home() {
             <button
               className='mb-4 px-4 py-2 bg-blue-600 text-white rounded'
               onClick={() => setShowTransactionForm(true)}>
-              Add Transaction
+              {ar.buttons.Add_Transaction}
             </button>
           )}
 
@@ -233,7 +239,9 @@ export default function Home() {
 
       {activeTab === 'products' && (
         <>
-          <h1 className='text-2xl font-bold mb-4'>Products Management</h1>
+          <h1 className='text-2xl font-bold mb-4'>
+            {ar.titles.Products_Management}
+          </h1>
 
           {showProductForm && (
             <FormProduct
@@ -258,7 +266,7 @@ export default function Home() {
             <button
               className='mb-4 px-4 py-2 bg-blue-600 text-white rounded'
               onClick={() => setShowProductForm(true)}>
-              Add Product
+              {ar.buttons.Add_Product}
             </button>
           )}
 

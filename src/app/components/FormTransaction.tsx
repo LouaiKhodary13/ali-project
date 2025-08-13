@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
+import { ar } from '../lang/ar';
 import { Transaction, Product } from '@/app/types';
 
 type Props = {
   initial?: Partial<Omit<Transaction, 'tran_id'>>;
   onSubmit: (data: Omit<Transaction, 'tran_id'>) => void;
   onCancel?: () => void;
-  products: Product[]; // pass products as prop
+  products: Product[];
 };
 
 export const FormTransaction: React.FC<Props> = ({
@@ -63,7 +64,9 @@ export const FormTransaction: React.FC<Props> = ({
   return (
     <form onSubmit={submit} className='space-y-2 p-4 border rounded'>
       <div>
-        <label className='block text-sm font-medium'>Products</label>
+        <label className='block text-sm font-medium'>
+          {ar.strings.Products}
+        </label>
         <div className='border rounded p-2 max-h-48 overflow-y-auto'>
           {products.map((p) => (
             <label key={p.prod_id} className='flex items-center gap-2'>
@@ -79,7 +82,9 @@ export const FormTransaction: React.FC<Props> = ({
       </div>
 
       <div>
-        <label className='block text-sm font-medium'>Source</label>
+        <label className='block text-sm font-medium'>
+          {ar.transaction.Source}
+        </label>
         <input
           type='text'
           value={source}
@@ -90,7 +95,9 @@ export const FormTransaction: React.FC<Props> = ({
       </div>
 
       <div>
-        <label className='block text-sm font-medium'>Cost</label>
+        <label className='block text-sm font-medium'>
+          {ar.transaction.Cost}
+        </label>
         <input
           type='number'
           value={cost}
@@ -101,7 +108,7 @@ export const FormTransaction: React.FC<Props> = ({
       </div>
 
       <div>
-        <label className='block text-sm font-medium'>Date</label>
+        <label className='block text-sm font-medium'>{ar.strings.Date}</label>
         <input
           type='date'
           value={date}
@@ -112,7 +119,7 @@ export const FormTransaction: React.FC<Props> = ({
       </div>
 
       <div>
-        <label className='block text-sm font-medium'>Note</label>
+        <label className='block text-sm font-medium'>{ar.strings.Note}</label>
         <input
           type='text'
           value={note}
@@ -125,13 +132,13 @@ export const FormTransaction: React.FC<Props> = ({
         <button
           type='submit'
           className='px-3 py-1 bg-blue-600 text-white rounded'>
-          Save
+          {ar.buttons.Save}
         </button>
         <button
           type='button'
           onClick={onCancel}
           className='px-3 py-1 border rounded'>
-          Cancel
+          {ar.buttons.Cancel}
         </button>
       </div>
     </form>

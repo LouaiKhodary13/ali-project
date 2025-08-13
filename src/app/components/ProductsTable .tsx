@@ -1,5 +1,6 @@
 // src/app/components/ProductsTable.tsx
 import React from 'react';
+import { ar } from '../lang/ar';
 import { Product } from '@/app/types';
 
 type Props = {
@@ -19,14 +20,14 @@ export const ProductsTable: React.FC<Props> = ({
         <thead className='text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400'>
           <tr>
             <th scope='col' className='px-6 py-3'>
-              Product Name
+              {ar.products.name}
             </th>
             <th scope='col' className='px-6 py-3'>
-              Quantity
+              {ar.products.quantity}
             </th>
             <th scope='col' className='px-6 py-3'>
               <div className='flex items-center'>
-                Price
+                {ar.products.price}
                 <a href='#'>
                   <svg
                     className='w-3 h-3 ms-1.5'
@@ -40,10 +41,10 @@ export const ProductsTable: React.FC<Props> = ({
               </div>
             </th>
             <th scope='col' className='px-6 py-3'>
-              Note
+              {ar.strings.Note}
             </th>
             <th scope='col' className='px-6 py-3'>
-              <span className='sr-only'>Actions</span>
+              {ar.strings.Actions}
             </th>
           </tr>
         </thead>
@@ -64,16 +65,16 @@ export const ProductsTable: React.FC<Props> = ({
               <td className='px-6 py-4'>{p.prod_quant}</td>
               <td className='px-6 py-4'>{p.prod_price}</td>
               <td className='px-6 py-4'>{p.prod_note}</td>
-              <td className='px-6 py-4 text-right rtl:text-left'>
+              <td className='px-6 py-4 text-right'>
                 <button
                   onClick={() => onEdit?.(p)}
-                  className='font-medium text-blue-600 dark:text-blue-500 hover:underline mr-4'>
-                  Edit
+                  className='font-medium text-blue-600 dark:text-blue-500 hover:underline mr-4 ml-4'>
+                  {ar.buttons.Edit}
                 </button>
                 <button
                   onClick={() => onDelete?.(p.prod_id)}
                   className='font-medium text-red-600 dark:text-red-500 hover:underline'>
-                  Delete
+                  {ar.buttons.Delete}
                 </button>
               </td>
             </tr>

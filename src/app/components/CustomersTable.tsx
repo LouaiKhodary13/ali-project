@@ -16,8 +16,8 @@ export const CustomersTable: React.FC<Props> = ({
 }) => {
   return (
     <div className='relative overflow-x-auto shadow-md sm:rounded-lg'>
-      <table className='w-full text-sm text-left rtl:text-right text-gray-500 dark:text-white'>
-        <thead className='text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400'>
+      <table className='w-full text-sm text-left rtl:text-right'>
+        <thead className='text-xs text-white uppercase bg-gray-700'>
           <tr>
             <th scope='col' className='px-6 py-3'>
               {ar.strings.Name}
@@ -52,19 +52,23 @@ export const CustomersTable: React.FC<Props> = ({
           {customers.map((c, i) => (
             <tr
               key={c.cust_id}
-              className={`border-b border-gray-200 dark:border-gray-700 ${
-                i % 2 === 0
-                  ? 'bg-white dark:bg-gray-800'
-                  : 'bg-gray-50 dark:bg-gray-900'
+              className={`border-b border-gray-700 ${
+                i % 2 === 0 ? ' bg-gray-800' : 'bg-gray-900'
               }`}>
               <th
                 scope='row'
-                className='px-6 py-4 font-medium text-white whitespace-nowrap dark:text-white'>
+                className='px-6 py-4 font-medium text-white whitespace-nowrap '>
                 {c.cust_name}
               </th>
-              <td className='px-6 py-4'>{c.cust_adr}</td>
-              <td className='px-6 py-4'>{c.cust_phone}</td>
-              <td className='px-6 py-4'>{c.cust_note}</td>
+              <td className='px-6 py-4 font-medium text-white whitespace-nowrap'>
+                {c.cust_adr}
+              </td>
+              <td className='px-6 py-4 font-medium text-white whitespace-nowrap'>
+                {c.cust_phone}
+              </td>
+              <td className='px-6 py-4 font-medium text-white whitespace-nowrap'>
+                {c.cust_note}
+              </td>
               <td className='px-6 py-4 text-right'>
                 <button
                   onClick={() => onEdit?.(c)}

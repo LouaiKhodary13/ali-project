@@ -42,8 +42,7 @@ export const FormTransaction: React.FC<Props> = ({
     if (!source.trim()) return alert('Source is required');
     if (!cost || isNaN(Number(cost))) return alert('Valid cost is required');
     if (!date) return alert('Date is required');
-    if (prodIds.length === 0)
-      return alert('Please select at least one product');
+    if (prodIds.length === 0) return alert('يرجى اختيار منتج واحد على الأقل');
 
     onSubmit({
       prod_ids: prodIds,
@@ -64,7 +63,7 @@ export const FormTransaction: React.FC<Props> = ({
   return (
     <form onSubmit={submit} className='space-y-2 p-4 border rounded'>
       <div>
-        <label className='block text-sm font-medium'>
+        <label className='block text-sm font-bold mb-4'>
           {ar.strings.Products}
         </label>
         <div className='border rounded p-2 max-h-48 overflow-y-auto'>
@@ -82,7 +81,7 @@ export const FormTransaction: React.FC<Props> = ({
       </div>
 
       <div>
-        <label className='block text-sm font-medium'>
+        <label className='block text-sm font-bold mb-4'>
           {ar.transaction.Source}
         </label>
         <input
@@ -95,7 +94,7 @@ export const FormTransaction: React.FC<Props> = ({
       </div>
 
       <div>
-        <label className='block text-sm font-medium'>
+        <label className='block text-sm font-bold mb-4'>
           {ar.transaction.Cost}
         </label>
         <input
@@ -108,7 +107,9 @@ export const FormTransaction: React.FC<Props> = ({
       </div>
 
       <div>
-        <label className='block text-sm font-medium'>{ar.strings.Date}</label>
+        <label className='block text-sm font-bold mb-4'>
+          {ar.strings.Date}
+        </label>
         <input
           type='date'
           value={date}
@@ -119,7 +120,9 @@ export const FormTransaction: React.FC<Props> = ({
       </div>
 
       <div>
-        <label className='block text-sm font-medium'>{ar.strings.Note}</label>
+        <label className='block text-sm font-bold mb-4'>
+          {ar.strings.Note}
+        </label>
         <input
           type='text'
           value={note}
@@ -128,7 +131,7 @@ export const FormTransaction: React.FC<Props> = ({
         />
       </div>
 
-      <div className='flex gap-2'>
+      <div className='flex gap-2 font-bold'>
         <button
           type='submit'
           className='px-3 py-1 bg-blue-600 text-white rounded'>

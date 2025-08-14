@@ -16,8 +16,8 @@ export const ProductsTable: React.FC<Props> = ({
 }) => {
   return (
     <div className='relative overflow-x-auto shadow-md sm:rounded-lg'>
-      <table className='w-full text-sm text-left rtl:text-right text-gray-500 dark:text-white'>
-        <thead className='text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400'>
+      <table className='w-full text-sm text-left rtl:text-right'>
+        <thead className='text-xs text-white uppercase bg-gray-700'>
           <tr>
             <th scope='col' className='px-6 py-3'>
               {ar.products.name}
@@ -52,19 +52,23 @@ export const ProductsTable: React.FC<Props> = ({
           {products.map((p, i) => (
             <tr
               key={p.prod_id}
-              className={`border-b border-gray-200 dark:border-gray-700 ${
-                i % 2 === 0
-                  ? 'bg-white dark:bg-gray-800'
-                  : 'bg-gray-50 dark:bg-gray-900'
+              className={`border-b border-gray-700 ${
+                i % 2 === 0 ? ' bg-gray-800' : 'bg-gray-900'
               }`}>
               <th
                 scope='row'
-                className='px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white'>
+                className='px-6 py-4 font-medium text-white whitespace-nowrap'>
                 {p.prod_name}
               </th>
-              <td className='px-6 py-4'>{p.prod_quant}</td>
-              <td className='px-6 py-4'>{p.prod_price}</td>
-              <td className='px-6 py-4'>{p.prod_note}</td>
+              <td className='px-6 py-4 text-white font-medium'>
+                {p.prod_quant}
+              </td>
+              <td className='px-6 py-4 text-white font-medium'>
+                {p.prod_price}
+              </td>
+              <td className='px-6 py-4 text-white font-medium'>
+                {p.prod_note}
+              </td>
               <td className='px-6 py-4 text-right'>
                 <button
                   onClick={() => onEdit?.(p)}

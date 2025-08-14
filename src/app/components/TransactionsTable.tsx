@@ -18,13 +18,13 @@ export const TransactionsTable: React.FC<Props> = ({
   // Declare getProductName function inside component scope
   const getProductName = (id: string) => {
     const product = products.find((p) => p.prod_id === id);
-    return product ? product.prod_name : 'Deleted product';
+    return product ? product.prod_name : 'المنتج محذوف';
   };
 
   return (
     <div className='relative overflow-x-auto shadow-md sm:rounded-lg'>
-      <table className='w-full text-sm text-left rtl:text-right text-gray-500 dark:text-white'>
-        <thead className='text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400'>
+      <table className='w-full text-sm text-left rtl:text-right'>
+        <thead className='text-xs text-white uppercase bg-gray-700'>
           <tr>
             <th scope='col' className='px-6 py-3'>
               {ar.tabs.products}
@@ -50,34 +50,32 @@ export const TransactionsTable: React.FC<Props> = ({
           {transactions.map((t, i) => (
             <tr
               key={t.tran_id}
-              className={`border-b border-gray-200 dark:border-gray-700 ${
-                i % 2 === 0
-                  ? 'bg-white dark:bg-gray-800'
-                  : 'bg-gray-50 dark:bg-gray-900'
+              className={`border-b border-gray-700 ${
+                i % 2 === 0 ? 'bg-gray-800 ' : 'bg-gray-900'
               }`}>
               <td
                 scope='row'
-                className='px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white'>
+                className='px-6 py-4 font-medium  text-white whitespace-nowrap'>
                 {t.prod_ids.map(getProductName).join(', ')}
               </td>
               <td
                 scope='row'
-                className='px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white'>
+                className='px-6 py-4 font-medium text-white whitespace-nowrap '>
                 {t.tran_source}
               </td>
               <td
                 scope='row'
-                className='px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white'>
+                className='px-6 py-4 font-medium text-white whitespace-nowrap '>
                 {t.tran_cost}
               </td>
               <td
                 scope='row'
-                className='px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white'>
+                className='px-6 py-4 font-medium text-white whitespace-nowrap '>
                 {new Date(t.tran_date).toLocaleDateString()}
               </td>
               <td
                 scope='row'
-                className='px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white'>
+                className='px-6 py-4 font-medium text-white whitespace-nowrap '>
                 {t.tran_note}
               </td>
               <td scope='row' className='px-6 py-4 text-right'>

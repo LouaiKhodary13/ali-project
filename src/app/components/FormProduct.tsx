@@ -48,7 +48,9 @@ export const FormProduct: React.FC<Props> = ({
   return (
     <form onSubmit={submit} className='space-y-2 p-4 border rounded '>
       <div>
-        <label className='block text-sm font-medium'>{ar.products.name}</label>
+        <label className='block text-sm font-bold mb-4'>
+          {ar.products.name}
+        </label>
         <input
           type='text'
           value={name}
@@ -58,7 +60,7 @@ export const FormProduct: React.FC<Props> = ({
         />
       </div>
       <div>
-        <label className='block text-sm font-medium'>
+        <label className='block text-sm font-bold mb-4'>
           {ar.products.quantity}
         </label>
         <input
@@ -71,7 +73,7 @@ export const FormProduct: React.FC<Props> = ({
         />
       </div>
       <div>
-        <label className='block text-sm font-medium'>
+        <label className='block text-sm font-bold mb-4'>
           {' '}
           {ar.products.price}
         </label>
@@ -86,7 +88,9 @@ export const FormProduct: React.FC<Props> = ({
         />
       </div>
       <div>
-        <label className='block text-sm font-medium'>{ar.strings.Note}</label>
+        <label className='block text-sm font-bold mb-4'>
+          {ar.strings.Note}
+        </label>
         <input
           type='text'
           value={note}
@@ -94,7 +98,7 @@ export const FormProduct: React.FC<Props> = ({
           className='w-full p-2 border rounded'
         />
       </div>
-      <div className='flex gap-2'>
+      <div className='flex gap-2 font-bold'>
         <button
           type='submit'
           className='px-3 py-1 bg-blue-600 text-white rounded'>

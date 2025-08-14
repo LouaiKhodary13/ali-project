@@ -71,7 +71,7 @@ export const FormBill: React.FC<Props> = ({
   return (
     <form onSubmit={submit} className='space-y-2 p-4 border rounded'>
       <div>
-        <label className='block text-sm font-medium'>
+        <label className='block text-sm font-bold mb-4'>
           {ar.strings.Customer}
         </label>
         <select
@@ -89,7 +89,9 @@ export const FormBill: React.FC<Props> = ({
       </div>
 
       <div>
-        <label className='block text-sm font-medium'>Products</label>
+        <label className='block text-sm font-bold mb-4'>
+          {ar.tabs.products}
+        </label>
         <div className='border rounded p-2 max-h-48 overflow-y-auto'>
           {products.map((p) => (
             <label key={p.prod_id} className='flex items-center gap-2'>
@@ -112,7 +114,9 @@ export const FormBill: React.FC<Props> = ({
       </div>
 
       <div>
-        <label className='block text-sm font-medium'>{ar.strings.Total}</label>
+        <label className='block text-sm font-bold mb-4'>
+          {ar.strings.Total}
+        </label>
         <input
           type='number'
           value={billSum}
@@ -123,7 +127,9 @@ export const FormBill: React.FC<Props> = ({
       </div>
 
       <div>
-        <label className='block text-sm font-medium'>{ar.strings.Date}</label>
+        <label className='block text-sm font-bold mb-4'>
+          {ar.strings.Date}
+        </label>
         <input
           type='date'
           value={billDate}
@@ -134,7 +140,9 @@ export const FormBill: React.FC<Props> = ({
       </div>
 
       <div>
-        <label className='block text-sm font-medium'>{ar.strings.Note}</label>
+        <label className='block text-sm font-bold mb-4'>
+          {ar.strings.Note}
+        </label>
         <input
           type='text'
           value={billNote}
@@ -143,7 +151,7 @@ export const FormBill: React.FC<Props> = ({
         />
       </div>
 
-      <div className='flex gap-2'>
+      <div className='flex gap-2 fon-bold'>
         <button
           type='submit'
           className='px-3 py-1 bg-blue-600 text-white rounded'>

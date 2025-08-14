@@ -1,26 +1,26 @@
 // src/app/page.tsx
-"use client";
-import { BillsTable } from "@/app/components/BillsTable";
-import { CustomersTable } from "@/app/components/CustomersTable";
-import { FormCustomer } from "@/app/components/FormCustomer";
-import { TransactionsTable } from "@/app/components/TransactionsTable";
-import { Bill, Customer, Product, Transaction } from "@/app/types";
-import { useState } from "react";
-import { AnalyticsExport } from "./components/AnalyticsExport";
-import { FormBill } from "./components/FormBill";
-import { FormProduct } from "./components/FormProduct";
-import { FormTransaction } from "./components/FormTransaction";
-import { ProductsTable } from "./components/ProductsTable ";
-import { useBills } from "./components/hooks/useBills";
-import { useCustomers } from "./components/hooks/useCustomers";
-import { useProducts } from "./components/hooks/useProducts";
-import { useTransactions } from "./components/hooks/useTransactions";
-import { ar } from "./lang/ar";
+'use client';
+import { BillsTable } from '@/app/components/BillsTable';
+import { CustomersTable } from '@/app/components/CustomersTable';
+import { FormCustomer } from '@/app/components/FormCustomer';
+import { TransactionsTable } from '@/app/components/TransactionsTable';
+import { Bill, Customer, Product, Transaction } from '@/app/types';
+import { useState } from 'react';
+import { AnalyticsExport } from './components/AnalyticsExport';
+import { FormBill } from './components/FormBill';
+import { FormProduct } from './components/FormProduct';
+import { FormTransaction } from './components/FormTransaction';
+import { ProductsTable } from './components/ProductsTable ';
+import { useBills } from './components/hooks/useBills';
+import { useCustomers } from './components/hooks/useCustomers';
+import { useProducts } from './components/hooks/useProducts';
+import { useTransactions } from './components/hooks/useTransactions';
+import { ar } from './lang/ar';
 
 export default function Home() {
   const [activeTab, setActiveTab] = useState<
-    "customers" | "bills" | "transactions" | "products" | "analytics"
-  >("customers");
+    'customers' | 'bills' | 'transactions' | 'products' | 'analytics'
+  >('customers');
 
   // Customers
   const { customers, addCustomer, updateCustomer, deleteCustomer } =
@@ -51,52 +51,47 @@ export default function Home() {
         <button
           onClick={() => setActiveTab("customers")}
           className={`px-2 py-2 ${
-            activeTab === "customers"
-              ? "border-b-2 border-blue-600 font-bold"
-              : "text-gray-500"
-          }`}
-        >
+            activeTab === 'customers'
+              ? 'border-b-2 border-blue-600 font-bold'
+              : 'text-gray-900'
+          }`}>
           {ar.tabs.customers}
         </button>
         <button
           onClick={() => setActiveTab("bills")}
           className={`px-4 py-2 ${
-            activeTab === "bills"
-              ? "border-b-2 border-blue-600 font-bold"
-              : "text-gray-500"
-          }`}
-        >
+            activeTab === 'bills'
+              ? 'border-b-2 border-black font-bold'
+              : 'text-gray-900'
+          }`}>
           {ar.tabs.bills}
         </button>
         <button
           onClick={() => setActiveTab("transactions")}
           className={`px-4 py-2 ${
-            activeTab === "transactions"
-              ? "border-b-2 border-blue-600 font-bold"
-              : "text-gray-500"
-          }`}
-        >
+            activeTab === 'transactions'
+              ? 'border-b-2 border-black font-bold'
+              : 'text-gray-900'
+          }`}>
           {ar.tabs.transactions}
         </button>
         <button
           onClick={() => setActiveTab("products")}
           className={`px-4 py-2 ${
-            activeTab === "products"
-              ? "border-b-2 border-blue-600 font-bold"
-              : "text-gray-500"
-          }`}
-        >
+            activeTab === 'products'
+              ? 'border-b-2 border-black font-bold'
+              : 'text-gray-900'
+          }`}>
           {ar.tabs.products}
         </button>
         <button
-          onClick={() => setActiveTab("analytics")}
+          onClick={() => setActiveTab('analytics')}
           className={`px-4 py-2 ${
-            activeTab === "analytics"
-              ? "border-b-2 border-blue-600 font-bold"
-              : "text-gray-500"
-          }`}
-        >
-          Analytics
+            activeTab === 'analytics'
+              ? 'border-b-2 border-black font-bold'
+              : 'text-gray-900'
+          }`}>
+          {ar.tabs.analytics}
         </button>
       </div>
 
@@ -221,7 +216,7 @@ export default function Home() {
                   }
                   setShowTransactionForm(false);
                 } catch (err) {
-                  console.error("Failed to save transaction:", err);
+                  console.error('Failed to save transaction:', err);
                 }
               }}
               onCancel={() => {
@@ -251,7 +246,7 @@ export default function Home() {
               try {
                 await deleteTransaction(id);
               } catch (err) {
-                console.error("Failed to delete transaction:", err);
+                console.error('Failed to delete transaction:', err);
               }
             }}
           />
@@ -303,9 +298,11 @@ export default function Home() {
         </>
       )}
 
-      {activeTab === "analytics" && (
+      {activeTab === 'analytics' && (
         <>
-          <h1 className="text-2xl font-bold mb-4">Analytics & Reports</h1>
+          <h1 className='text-2xl font-bold mb-4'>
+            {ar.analytics.Analytics_Reports}
+          </h1>
           <AnalyticsExport
             bills={bills}
             transactions={transactions}

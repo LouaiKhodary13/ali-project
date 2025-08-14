@@ -45,7 +45,9 @@ export const FormCustomer: React.FC<Props> = ({
   return (
     <form onSubmit={submit} className='space-y-2 p-4 border rounded'>
       <div>
-        <label className='block text-sm'>{ar.products.name}</label>
+        <label className='block font-bold text-sm mb-4'>
+          {ar.buttons.Add_Customer}
+        </label>
         <input
           value={name}
           onChange={(e) => setName(e.target.value)}
@@ -53,7 +55,9 @@ export const FormCustomer: React.FC<Props> = ({
         />
       </div>
       <div>
-        <label className='block text-sm'>{ar.strings.Address}</label>
+        <label className='block font-bold  text-sm mb-4'>
+          {ar.strings.Address}
+        </label>
         <input
           value={adr}
           onChange={(e) => setAdr(e.target.value)}
@@ -61,7 +65,9 @@ export const FormCustomer: React.FC<Props> = ({
         />
       </div>
       <div>
-        <label className='block text-sm'>{ar.strings.Phone}</label>
+        <label className='block font-bold  text-sm mb-4'>
+          {ar.strings.Phone}
+        </label>
         <input
           value={phone}
           onChange={(e) => setPhone(e.target.value)}
@@ -69,14 +75,16 @@ export const FormCustomer: React.FC<Props> = ({
         />
       </div>
       <div>
-        <label className='block text-sm'>{ar.strings.Note}</label>
+        <label className='block font-bold  text-sm mb-4'>
+          {ar.strings.Note}
+        </label>
         <input
           value={note}
           onChange={(e) => setNote(e.target.value)}
           className='w-full p-2 border rounded'
         />
       </div>
-      <div className='flex gap-2'>
+      <div className='flex gap-2  font-bold '>
         <button className='px-3 py-1 bg-blue-600 text-white rounded'>
           {ar.buttons.Save}
         </button>

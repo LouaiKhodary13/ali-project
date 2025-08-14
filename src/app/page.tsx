@@ -45,11 +45,11 @@ export default function Home() {
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [showProductForm, setShowProductForm] = useState(false);
   return (
-    <div className='p-6 max-w-5xl mx-auto'>
+    <div className="p-6 max-w-5xl mx-auto">
       {/* Tabs Nav */}
-      <div className='flex border-b mb-4 justify-between'>
+      <div className="flex border-b mb-4 justify-between">
         <button
-          onClick={() => setActiveTab('customers')}
+          onClick={() => setActiveTab("customers")}
           className={`px-2 py-2 ${
             activeTab === 'customers'
               ? 'border-b-2 border-blue-600 font-bold'
@@ -58,7 +58,7 @@ export default function Home() {
           {ar.tabs.customers}
         </button>
         <button
-          onClick={() => setActiveTab('bills')}
+          onClick={() => setActiveTab("bills")}
           className={`px-4 py-2 ${
             activeTab === 'bills'
               ? 'border-b-2 border-black font-bold'
@@ -67,7 +67,7 @@ export default function Home() {
           {ar.tabs.bills}
         </button>
         <button
-          onClick={() => setActiveTab('transactions')}
+          onClick={() => setActiveTab("transactions")}
           className={`px-4 py-2 ${
             activeTab === 'transactions'
               ? 'border-b-2 border-black font-bold'
@@ -76,7 +76,7 @@ export default function Home() {
           {ar.tabs.transactions}
         </button>
         <button
-          onClick={() => setActiveTab('products')}
+          onClick={() => setActiveTab("products")}
           className={`px-4 py-2 ${
             activeTab === 'products'
               ? 'border-b-2 border-black font-bold'
@@ -96,9 +96,9 @@ export default function Home() {
       </div>
 
       {/* Tab Content */}
-      {activeTab === 'customers' && (
+      {activeTab === "customers" && (
         <>
-          <h1 className='text-2xl font-bold mb-4'>
+          <h1 className="text-2xl font-bold mb-4">
             {ar.titles.Customer_Management}
           </h1>
 
@@ -123,8 +123,9 @@ export default function Home() {
 
           {!showCustomerForm && (
             <button
-              className='mb-4 px-4 py-2 bg-blue-600 text-white rounded'
-              onClick={() => setShowCustomerForm(true)}>
+              className="mb-4 px-4 py-2 bg-blue-600 text-white rounded"
+              onClick={() => setShowCustomerForm(true)}
+            >
               {ar.buttons.Add_Customer}
             </button>
           )}
@@ -140,9 +141,9 @@ export default function Home() {
         </>
       )}
 
-      {activeTab === 'bills' && (
+      {activeTab === "bills" && (
         <>
-          <h1 className='text-2xl font-bold mb-4'>
+          <h1 className="text-2xl font-bold mb-4">
             {ar.titles.Bills_Management}
           </h1>
 
@@ -169,8 +170,9 @@ export default function Home() {
 
           {!showBillForm && (
             <button
-              className='mb-4 px-4 py-2 bg-blue-600 text-white rounded'
-              onClick={() => setShowBillForm(true)}>
+              className="mb-4 px-4 py-2 bg-blue-600 text-white rounded"
+              onClick={() => setShowBillForm(true)}
+            >
               {ar.buttons.Add_Bill}
             </button>
           )}
@@ -187,16 +189,16 @@ export default function Home() {
               try {
                 await deleteBill(id);
               } catch (err) {
-                console.error('Failed to delete bill:', err);
+                console.error("Failed to delete bill:", err);
               }
             }}
           />
         </>
       )}
 
-      {activeTab === 'transactions' && (
+      {activeTab === "transactions" && (
         <>
-          <h1 className='text-2xl font-bold mb-4'>
+          <h1 className="text-2xl font-bold mb-4">
             {ar.titles.Transactions_Management}
           </h1>
 
@@ -226,8 +228,9 @@ export default function Home() {
 
           {!showTransactionForm && (
             <button
-              className='mb-4 px-4 py-2 bg-blue-600 text-white rounded'
-              onClick={() => setShowTransactionForm(true)}>
+              className="mb-4 px-4 py-2 bg-blue-600 text-white rounded"
+              onClick={() => setShowTransactionForm(true)}
+            >
               {ar.buttons.Add_Transaction}
             </button>
           )}
@@ -250,9 +253,9 @@ export default function Home() {
         </>
       )}
 
-      {activeTab === 'products' && (
+      {activeTab === "products" && (
         <>
-          <h1 className='text-2xl font-bold mb-4'>
+          <h1 className="text-2xl font-bold mb-4">
             {ar.titles.Products_Management}
           </h1>
 
@@ -277,8 +280,9 @@ export default function Home() {
 
           {!showProductForm && (
             <button
-              className='mb-4 px-4 py-2 bg-blue-600 text-white rounded'
-              onClick={() => setShowProductForm(true)}>
+              className="mb-4 px-4 py-2 bg-blue-600 text-white rounded"
+              onClick={() => setShowProductForm(true)}
+            >
               {ar.buttons.Add_Product}
             </button>
           )}

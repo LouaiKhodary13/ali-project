@@ -1,10 +1,10 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { DateRange, calculateAnalytics } from '@/app/utils/analytics';
-import { exportAnalyticsToExcel } from '@/app/utils/excelExport';
-import { Bill, Transaction, Customer, Product } from '@/app/types';
-import { ar } from '../lang/ar';
+import { useState } from "react";
+import { DateRange, calculateAnalytics } from "@/app/utils/analytics";
+import { exportAnalyticsToExcel } from "@/app/utils/excelExport";
+import { Bill, Transaction, Customer, Product } from "@/app/types";
+import { ar } from "../lang/ar";
 
 interface AnalyticsExportProps {
   bills: Bill[];
@@ -19,13 +19,14 @@ export function AnalyticsExport({
   customers,
   products,
 }: AnalyticsExportProps) {
-  const [selectedRange, setSelectedRange] = useState<DateRange>('alltime');
+  const [selectedRange, setSelectedRange] = useState<DateRange>("alltime");
   const [isExporting, setIsExporting] = useState(false);
   const [showDebug, setShowDebug] = useState(false);
 
   const handleExport = async () => {
     setIsExporting(true);
     try {
+      console.log("Starting export process...");
       const analytics = calculateAnalytics(
         bills,
         transactions,
@@ -33,10 +34,13 @@ export function AnalyticsExport({
         products,
         selectedRange
       );
-      exportAnalyticsToExcel(analytics, selectedRange);
+
+      console.log("Analytics calculated:", analytics);
+      await exportAnalyticsToExcel(analytics, selectedRange);
+      console.log("Export completed successfully");
     } catch (error) {
-      console.error('Export failed:', error);
-      alert('Export failed. Please try again.');
+      console.error("Export failed:", error);
+      alert(`Export failed: Please try again.`);
     } finally {
       setIsExporting(false);
     }
@@ -52,21 +56,22 @@ export function AnalyticsExport({
   );
 
   return (
-    <div className='space-y-6'>
+    <div className="space-y-6">
       {/* Debug Section */}
       {showDebug && (
-        <div className=' p-4 rounded-lg border'>
-          <div className='flex justify-between items-center mb-2'>
-            <h4 className='font-semibold text-yellow-800'>
+        <div className=" p-4 rounded-lg border">
+          <div className="flex justify-between items-center mb-2">
+            <h4 className="font-semibold text-yellow-800">
               {ar.analytics.Debug_Information}
             </h4>
             <button
               onClick={() => setShowDebug(false)}
-              className='text-yellow-600 hover:text-yellow-800'>
+              className="text-yellow-600 hover:text-yellow-800"
+            >
               {ar.analytics.Hide}
             </button>
           </div>
-          <div className='text-sm space-y-1'>
+          <div className="text-sm space-y-1">
             <p>
               <strong>{ar.analytics.Raw_Bills}</strong>
               {JSON.stringify(bills, null, 2)}
@@ -87,37 +92,40 @@ export function AnalyticsExport({
       )}
 
       {/* Export Section */}
-      <div className='p-10 rounded-lg shadow-md border'>
-        <h3 className='text-lg font-semibold text-black'>
+      <div className="p-10 rounded-lg shadow-md border">
+        <h3 className="text-lg font-semibold text-black">
           {ar.analytics.Export_Analytics}
         </h3>
 
-        <div className='mb-5'>
+        <div className="mb-5">
           <label
-            htmlFor='dateRange'
-            className='block text-sm font-medium text-black'>
+            htmlFor="dateRange"
+            className="block text-sm font-medium text-black"
+          >
             {ar.analytics.TimePeriod}
           </label>
         </div>
-        <div className='flex gap-5'>
+        <div className="flex gap-5">
           <select
-            id='dateRange'
+            id="dateRange"
             value={selectedRange}
             onChange={(e) => setSelectedRange(e.target.value as DateRange)}
-            className='border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500'>
-            <option value='monthly'>{ar.analytics.This_Month}</option>
-            <option value='6months'>{ar.analytics.Last_6_Months}</option>
-            <option value='yearly'>{ar.analytics.This_Year}</option>
-            <option value='alltime'>{ar.analytics.all_time}</option>
+            className="border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          >
+            <option value="monthly">{ar.analytics.This_Month}</option>
+            <option value="6months">{ar.analytics.Last_6_Months}</option>
+            <option value="yearly">{ar.analytics.This_Year}</option>
+            <option value="alltime">{ar.analytics.all_time}</option>
           </select>
 
           <button
             onClick={handleExport}
             disabled={isExporting}
-            className='px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 disabled:opacity-50  flex items-center'>
+            className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 disabled:opacity-50  flex items-center"
+          >
             {isExporting ? (
               <>
-                <div className='animate-spin rounded-full h-4 w-4 border-b-2 border-white'></div>
+                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
                 {ar.analytics.Exporting}...
               </>
             ) : (
@@ -126,7 +134,7 @@ export function AnalyticsExport({
           </button>
         </div>
 
-        <p className='text-sm text-black font-bold mt-10'>
+        <p className="text-sm text-black font-bold mt-10">
           {
             ar.analytics
               .Export_includes_Financial_overview_top_selling_products_top_customers_and_monthly_breakdown
@@ -135,44 +143,46 @@ export function AnalyticsExport({
       </div>
 
       {/* Analytics Preview */}
-      <div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {/* Financial Overview */}
-        <div className='bg-white p-4 rounded-lg shadow-md border'>
-          <h4 className='font-bold text-black mb-3'>
+        <div className="bg-white p-4 rounded-lg shadow-md border">
+          <h4 className="font-bold text-black mb-3">
             {ar.analytics.Financial_Overview}
           </h4>
-          <div className='space-y-2'>
-            <div className='flex justify-between'>
-              <span className='text-green-600 font-bold'>
+          <div className="space-y-2">
+            <div className="flex justify-between">
+              <span className="text-green-600 font-bold">
                 {ar.analytics.Total_Earned}:
               </span>
-              <span className='font-bold text-green-600'>
+              <span className="font-bold text-green-600">
                 ${currentAnalytics.totalEarned.toFixed(2)}
               </span>
             </div>
-            <div className='flex justify-between'>
-              <span className='text-red-600 font-bold'>
+            <div className="flex justify-between">
+              <span className="text-red-600 font-bold">
                 {ar.analytics.Total_Spent}
               </span>
-              <span className='font-medium text-red-600'>
+              <span className="font-medium text-red-600">
                 ${currentAnalytics.totalSpent.toFixed(2)}
               </span>
             </div>
-            <div className='flex justify-between border-t pt-2'>
+            <div className="flex justify-between border-t pt-2">
               <span
                 className={`font-semibold ${
                   currentAnalytics.netProfit >= 0
-                    ? 'text-green-600'
-                    : 'text-red-600'
-                }`}>
+                    ? "text-green-600"
+                    : "text-red-600"
+                }`}
+              >
                 {ar.analytics.Net_Profit}:
               </span>
               <span
                 className={`font-bold ${
                   currentAnalytics.netProfit >= 0
-                    ? 'text-green-600'
-                    : 'text-red-600'
-                }`}>
+                    ? "text-green-600"
+                    : "text-red-600"
+                }`}
+              >
                 ${currentAnalytics.netProfit.toFixed(2)}
               </span>
             </div>
@@ -180,25 +190,25 @@ export function AnalyticsExport({
         </div>
 
         {/* Top Products */}
-        <div className=' p-4 rounded-lg shadow-md border'>
-          <h4 className='font-semibold text-black mb-3'>
+        <div className=" p-4 rounded-lg shadow-md border">
+          <h4 className="font-semibold text-black mb-3">
             {ar.analytics.Top_Selling_Products}
           </h4>
-          <div className='space-y-2 text-white'>
+          <div className="space-y-2 text-white">
             {currentAnalytics.topSellingProducts
               .slice(0, 3)
               .map((item, index) => (
-                <div key={index} className='flex justify-between text-sm'>
-                  <span className='truncate text-black font-bold'>
+                <div key={index} className="flex justify-between text-sm">
+                  <span className="truncate text-black font-bold">
                     {item.product.prod_name}
                   </span>
-                  <span className='font-bold text-black'>
+                  <span className="font-bold text-black">
                     ${item.totalRevenue.toFixed(2)}
                   </span>
                 </div>
               ))}
             {currentAnalytics.topSellingProducts.length === 0 && (
-              <p className='text-white text-sm'>
+              <p className="text-white text-sm">
                 {ar.analytics.No_sales_data_available}
               </p>
             )}
@@ -206,25 +216,25 @@ export function AnalyticsExport({
         </div>
 
         {/* Top Customers */}
-        <div className='p-4 rounded-lg shadow-md border'>
-          <h4 className='font-bold text-black mb-3'>
+        <div className="p-4 rounded-lg shadow-md border">
+          <h4 className="font-bold text-black mb-3">
             {ar.analytics.Top_Customers}
           </h4>
-          <div className='space-y-2'>
+          <div className="space-y-2">
             {currentAnalytics.topBuyingCustomers
               .slice(0, 3)
               .map((item, index) => (
-                <div key={index} className='flex justify-between text-sm'>
-                  <span className='truncate text-black font-bold'>
+                <div key={index} className="flex justify-between text-sm">
+                  <span className="truncate text-black font-bold">
                     {item.customer.cust_name}
                   </span>
-                  <span className='font-bold text-black'>
+                  <span className="font-bold text-black">
                     ${item.totalSpent.toFixed(2)}
                   </span>
                 </div>
               ))}
             {currentAnalytics.topBuyingCustomers.length === 0 && (
-              <p className='text-white text-sm'>
+              <p className="text-white text-sm">
                 {ar.analytics.No_customer_data_available}
               </p>
             )}
@@ -234,24 +244,24 @@ export function AnalyticsExport({
 
       {/* Monthly Breakdown */}
       {currentAnalytics.monthlyBreakdown.length > 0 && (
-        <div className=' p-4 rounded-lg shadow-md border'>
-          <h4 className='font-bold text-black mb-3'>
+        <div className=" p-4 rounded-lg shadow-md border">
+          <h4 className="font-bold text-black mb-3">
             {ar.analytics.Monthly_Breakdown}
           </h4>
-          <div className='overflow-x-auto'>
-            <table className='min-w-full text-sm'>
+          <div className="overflow-x-auto">
+            <table className="min-w-full text-sm">
               <thead>
-                <tr className='border-b'>
-                  <th className='text-right py-2 text-black font-bold'>
+                <tr className="border-b">
+                  <th className="text-right py-2 text-black font-bold">
                     {ar.analytics.Month}
                   </th>
-                  <th className='text-right py-2 text-black font-bold'>
+                  <th className="text-right py-2 text-black font-bold">
                     {ar.analytics.Earned}
                   </th>
-                  <th className='text-right py-2 text-black font-bold'>
+                  <th className="text-right py-2 text-black font-bold">
                     {ar.analytics.Spent}
                   </th>
-                  <th className='text-right py-2 text-black font-bold'>
+                  <th className="text-right py-2 text-black font-bold">
                     {ar.analytics.Profit}
                   </th>
                 </tr>
@@ -260,18 +270,19 @@ export function AnalyticsExport({
                 {currentAnalytics.monthlyBreakdown
                   .slice(-6)
                   .map((item, index) => (
-                    <tr key={index} className='border-b'>
-                      <td className='py-2'>{item.month}</td>
-                      <td className='text-right py-2 text-green-600'>
+                    <tr key={index} className="border-b">
+                      <td className="py-2">{item.month}</td>
+                      <td className="text-right py-2 text-green-600">
                         ${item.earned.toFixed(2)}
                       </td>
-                      <td className='text-right py-2 text-red-600'>
+                      <td className="text-right py-2 text-red-600">
                         ${item.spent.toFixed(2)}
                       </td>
                       <td
                         className={`text-right py-2 font-medium ${
-                          item.profit >= 0 ? 'text-green-600' : 'text-red-600'
-                        }`}>
+                          item.profit >= 0 ? "text-green-600" : "text-red-600"
+                        }`}
+                      >
                         ${item.profit.toFixed(2)}
                       </td>
                     </tr>

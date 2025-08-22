@@ -1,71 +1,55 @@
-import { Product } from '@/app/types';
-
-const API_BASE = '/api/products';
+import { Product } from "@/app/types";
+import { products } from "@/app/database/services";
 
 export const productService = {
   async getAll(): Promise<Product[]> {
-    const response = await fetch(API_BASE);
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      console.error('Failed to fetch products:', response.status, errorData);
-      throw new Error(`Failed to fetch products: ${response.status}`);
+    try {
+      return products.getAll();
+    } catch (error) {
+      console.error("Failed to fetch products:", error);
+      throw new Error("Failed to fetch products");
     }
-    return response.json();
   },
 
-  async getById(id: string): Promise<Product> {
-    const response = await fetch(`${API_BASE}/${id}`);
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      console.error('Failed to fetch product:', response.status, errorData);
-      throw new Error(`Failed to fetch product: ${response.status}`);
+  async getById(id: string): Promise<Product | undefined> {
+    try {
+      const product = products.getById(id);
+      if (!product) {
+        throw new Error("Product not found");
+      }
+      return product;
+    } catch (error) {
+      console.error("Failed to fetch product:", error);
+      throw new Error("Failed to fetch product");
     }
-    return response.json();
   },
 
   async create(product: Product): Promise<void> {
-    console.log('Sending product data:', product);
-    
-    const response = await fetch(API_BASE, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(product),
-    });
-    
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      console.error('Failed to create product:', response.status, errorData);
-      throw new Error(`Failed to create product: ${response.status} - ${errorData.error || 'Unknown error'}`);
+    console.log("Creating product:", product);
+
+    try {
+      products.create(product);
+    } catch (error) {
+      console.error("Failed to create product:", error);
+      throw new Error("Failed to create product");
     }
   },
 
   async update(id: string, product: Partial<Product>): Promise<void> {
-    const response = await fetch(`${API_BASE}/${id}`, {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(product),
-    });
-    
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      console.error('Failed to update product:', response.status, errorData);
-      throw new Error(`Failed to update product: ${response.status}`);
+    try {
+      products.update(id, product);
+    } catch (error) {
+      console.error("Failed to update product:", error);
+      throw new Error("Failed to update product");
     }
   },
 
   async delete(id: string): Promise<void> {
-    const response = await fetch(`${API_BASE}/${id}`, {
-      method: 'DELETE',
-    });
-    
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      console.error('Failed to delete product:', response.status, errorData);
-      throw new Error(`Failed to delete product: ${response.status}`);
+    try {
+      products.delete(id);
+    } catch (error) {
+      console.error("Failed to delete product:", error);
+      throw new Error("Failed to delete product");
     }
   },
 };

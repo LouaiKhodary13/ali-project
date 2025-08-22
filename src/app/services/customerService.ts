@@ -1,71 +1,55 @@
-import { Customer } from '@/app/types';
-
-const API_BASE = '/api/customers';
+import { Customer } from "@/app/types";
+import { customers } from "@/app/database/services";
 
 export const customerService = {
   async getAll(): Promise<Customer[]> {
-    const response = await fetch(API_BASE);
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      console.error('Failed to fetch customers:', response.status, errorData);
-      throw new Error(`Failed to fetch customers: ${response.status}`);
+    try {
+      return customers.getAll();
+    } catch (error) {
+      console.error("Failed to fetch customers:", error);
+      throw new Error("Failed to fetch customers");
     }
-    return response.json();
   },
 
-  async getById(id: string): Promise<Customer> {
-    const response = await fetch(`${API_BASE}/${id}`);
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      console.error('Failed to fetch customer:', response.status, errorData);
-      throw new Error(`Failed to fetch customer: ${response.status}`);
+  async getById(id: string): Promise<Customer | undefined> {
+    try {
+      const customer = customers.getById(id);
+      if (!customer) {
+        throw new Error("Customer not found");
+      }
+      return customer;
+    } catch (error) {
+      console.error("Failed to fetch customer:", error);
+      throw new Error("Failed to fetch customer");
     }
-    return response.json();
   },
 
   async create(customer: Customer): Promise<void> {
-    console.log('Sending customer data:', customer); // Debug log
-    
-    const response = await fetch(API_BASE, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(customer),
-    });
-    
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      console.error('Failed to create customer:', response.status, errorData);
-      throw new Error(`Failed to create customer: ${response.status} - ${errorData.error || 'Unknown error'}`);
+    console.log("Creating customer:", customer);
+
+    try {
+      customers.create(customer);
+    } catch (error) {
+      console.error("Failed to create customer:", error);
+      throw new Error("Failed to create customer");
     }
   },
 
   async update(id: string, customer: Partial<Customer>): Promise<void> {
-    const response = await fetch(`${API_BASE}/${id}`, {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(customer),
-    });
-    
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      console.error('Failed to update customer:', response.status, errorData);
-      throw new Error(`Failed to update customer: ${response.status}`);
+    try {
+      customers.update(id, customer);
+    } catch (error) {
+      console.error("Failed to update customer:", error);
+      throw new Error("Failed to update customer");
     }
   },
 
   async delete(id: string): Promise<void> {
-    const response = await fetch(`${API_BASE}/${id}`, {
-      method: 'DELETE',
-    });
-    
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      console.error('Failed to delete customer:', response.status, errorData);
-      throw new Error(`Failed to delete customer: ${response.status}`);
+    try {
+      customers.delete(id);
+    } catch (error) {
+      console.error("Failed to delete customer:", error);
+      throw new Error("Failed to delete customer");
     }
   },
 };

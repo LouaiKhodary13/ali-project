@@ -1,71 +1,55 @@
-import { Bill } from '@/app/types';
-
-const API_BASE = '/api/bills';
+import { Bill } from "@/app/types";
+import { bills } from "@/app/database/services";
 
 export const billService = {
   async getAll(): Promise<Bill[]> {
-    const response = await fetch(API_BASE);
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      console.error('Failed to fetch bills:', response.status, errorData);
-      throw new Error(`Failed to fetch bills: ${response.status}`);
+    try {
+      return bills.getAll();
+    } catch (error) {
+      console.error("Failed to fetch bills:", error);
+      throw new Error("Failed to fetch bills");
     }
-    return response.json();
   },
 
-  async getById(id: string): Promise<Bill> {
-    const response = await fetch(`${API_BASE}/${id}`);
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      console.error('Failed to fetch bill:', response.status, errorData);
-      throw new Error(`Failed to fetch bill: ${response.status}`);
+  async getById(id: string): Promise<Bill | undefined> {
+    try {
+      const bill = bills.getById(id);
+      if (!bill) {
+        throw new Error("Bill not found");
+      }
+      return bill;
+    } catch (error) {
+      console.error("Failed to fetch bill:", error);
+      throw new Error("Failed to fetch bill");
     }
-    return response.json();
   },
 
   async create(bill: Bill): Promise<void> {
-    console.log('Sending bill data:', bill);
-    
-    const response = await fetch(API_BASE, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(bill),
-    });
-    
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      console.error('Failed to create bill:', response.status, errorData);
-      throw new Error(`Failed to create bill: ${response.status} - ${errorData.error || 'Unknown error'}`);
+    console.log("Creating bill:", bill);
+
+    try {
+      bills.create(bill);
+    } catch (error) {
+      console.error("Failed to create bill:", error);
+      throw new Error("Failed to create bill");
     }
   },
 
   async update(id: string, bill: Partial<Bill>): Promise<void> {
-    const response = await fetch(`${API_BASE}/${id}`, {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(bill),
-    });
-    
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      console.error('Failed to update bill:', response.status, errorData);
-      throw new Error(`Failed to update bill: ${response.status}`);
+    try {
+      bills.update(id, bill);
+    } catch (error) {
+      console.error("Failed to update bill:", error);
+      throw new Error("Failed to update bill");
     }
   },
 
   async delete(id: string): Promise<void> {
-    const response = await fetch(`${API_BASE}/${id}`, {
-      method: 'DELETE',
-    });
-    
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      console.error('Failed to delete bill:', response.status, errorData);
-      throw new Error(`Failed to delete bill: ${response.status}`);
+    try {
+      bills.delete(id);
+    } catch (error) {
+      console.error("Failed to delete bill:", error);
+      throw new Error("Failed to delete bill");
     }
   },
 };

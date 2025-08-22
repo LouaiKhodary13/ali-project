@@ -1,208 +1,138 @@
-import { db } from "./connection";
 import { Customer, Product, Bill, Transaction } from "@/app/types";
+import {
+  openDB,
+  addItem,
+  getItem,
+  getAllItems,
+  updateItem,
+  deleteItem,
+} from "./connection";
 
-// Database row types (raw data from SQLite)
-type BillRow = Omit<Bill, "prod_ids"> & { prod_ids: string };
-type TransactionRow = Omit<Transaction, "prod_ids"> & { prod_ids: string };
+// Helper function to ensure database is ready
+async function ensureDB() {
+  await openDB();
+}
 
 // Customers
 export const customers = {
-  create: (data: Customer) => {
-    const stmt = db.prepare(`
-      INSERT INTO customers (cust_id, cust_name, cust_adr, cust_phone, cust_note)
-      VALUES (?, ?, ?, ?, ?)
-    `);
-    return stmt.run(
-      data.cust_id,
-      data.cust_name,
-      data.cust_adr,
-      data.cust_phone,
-      data.cust_note
-    );
+  create: async (data: Customer) => {
+    await ensureDB();
+    return addItem("customers", data);
   },
 
-  getAll: (): Customer[] => {
-    return db.prepare("SELECT * FROM customers").all() as Customer[];
+  getAll: async (): Promise<Customer[]> => {
+    await ensureDB();
+    return getAllItems("customers");
   },
 
-  getById: (id: string): Customer | undefined => {
-    return db
-      .prepare("SELECT * FROM customers WHERE cust_id = ?")
-      .get(id) as Customer;
+  getById: async (id: string): Promise<Customer | undefined> => {
+    await ensureDB();
+    return getItem("customers", id);
   },
 
-  update: (id: string, data: Partial<Customer>) => {
-    const fields = Object.keys(data).filter((key) => key !== "cust_id");
-    const setClause = fields.map((field) => `${field} = ?`).join(", ");
-    const values = fields.map((field) => data[field as keyof Customer]);
-
-    const stmt = db.prepare(
-      `UPDATE customers SET ${setClause} WHERE cust_id = ?`
-    );
-    return stmt.run(...values, id);
+  update: async (id: string, data: Partial<Customer>) => {
+    await ensureDB();
+    const existingCustomer = await getItem("customers", id);
+    if (!existingCustomer) throw new Error("Customer not found");
+    const updatedCustomer = { ...existingCustomer, ...data };
+    return updateItem("customers", updatedCustomer);
   },
 
-  delete: (id: string) => {
-    return db.prepare("DELETE FROM customers WHERE cust_id = ?").run(id);
+  delete: async (id: string) => {
+    await ensureDB();
+    return deleteItem("customers", id);
   },
 };
 
 // Products
 export const products = {
-  create: (data: Product) => {
-    const stmt = db.prepare(`
-      INSERT INTO products (prod_id, prod_name, prod_quant, prod_price, prod_note)
-      VALUES (?, ?, ?, ?, ?)
-    `);
-    return stmt.run(
-      data.prod_id,
-      data.prod_name,
-      data.prod_quant,
-      data.prod_price,
-      data.prod_note
-    );
+  create: async (data: Product) => {
+    await ensureDB();
+    return addItem("products", data);
   },
 
-  getAll: (): Product[] => {
-    return db.prepare("SELECT * FROM products").all() as Product[];
+  getAll: async (): Promise<Product[]> => {
+    await ensureDB();
+    return getAllItems("products");
   },
 
-  getById: (id: string): Product | undefined => {
-    return db
-      .prepare("SELECT * FROM products WHERE prod_id = ?")
-      .get(id) as Product;
+  getById: async (id: string): Promise<Product | undefined> => {
+    await ensureDB();
+    return getItem("products", id);
   },
 
-  update: (id: string, data: Partial<Product>) => {
-    const fields = Object.keys(data).filter((key) => key !== "prod_id");
-    const setClause = fields.map((field) => `${field} = ?`).join(", ");
-    const values = fields.map((field) => data[field as keyof Product]);
-
-    const stmt = db.prepare(
-      `UPDATE products SET ${setClause} WHERE prod_id = ?`
-    );
-    return stmt.run(...values, id);
+  update: async (id: string, data: Partial<Product>) => {
+    await ensureDB();
+    const existingProduct = await getItem("products", id);
+    if (!existingProduct) throw new Error("Product not found");
+    const updatedProduct = { ...existingProduct, ...data };
+    return updateItem("products", updatedProduct);
   },
 
-  delete: (id: string) => {
-    return db.prepare("DELETE FROM products WHERE prod_id = ?").run(id);
+  delete: async (id: string) => {
+    await ensureDB();
+    return deleteItem("products", id);
   },
 };
 
 // Bills
 export const bills = {
-  create: (data: Bill) => {
-    const stmt = db.prepare(`
-      INSERT INTO bills (bill_id, cust_id, prod_ids, bill_sum, bill_date, bill_note)
-      VALUES (?, ?, ?, ?, ?, ?)
-    `);
-    return stmt.run(
-      data.bill_id,
-      data.cust_id,
-      JSON.stringify(data.prod_ids),
-      data.bill_sum,
-      data.bill_date,
-      data.bill_note
-    );
+  create: async (data: Bill) => {
+    await ensureDB();
+    return addItem("bills", data);
   },
 
-  getAll: (): Bill[] => {
-    const rows = db.prepare("SELECT * FROM bills").all() as BillRow[];
-    return rows.map((row) => ({
-      ...row,
-      prod_ids: JSON.parse(row.prod_ids),
-    })) as Bill[];
+  getAll: async (): Promise<Bill[]> => {
+    await ensureDB();
+    return getAllItems("bills");
   },
 
-  getById: (id: string): Bill | undefined => {
-    const row = db.prepare("SELECT * FROM bills WHERE bill_id = ?").get(id) as
-      | BillRow
-      | undefined;
-    if (!row) return undefined;
-    return {
-      ...row,
-      prod_ids: JSON.parse(row.prod_ids),
-    } as Bill;
+  getById: async (id: string): Promise<Bill | undefined> => {
+    await ensureDB();
+    return getItem("bills", id);
   },
 
-  update: (id: string, data: Partial<Bill>) => {
-    const { prod_ids, ...restData } = data;
-    const updateData: Partial<BillRow> = { ...restData };
-    if (prod_ids) {
-      updateData.prod_ids = JSON.stringify(prod_ids);
-    }
-
-    const fields = Object.keys(updateData).filter((key) => key !== "bill_id");
-    const setClause = fields.map((field) => `${field} = ?`).join(", ");
-    const values = fields.map((field) => updateData[field as keyof BillRow]);
-
-    const stmt = db.prepare(`UPDATE bills SET ${setClause} WHERE bill_id = ?`);
-    return stmt.run(...values, id);
+  update: async (id: string, data: Partial<Bill>) => {
+    await ensureDB();
+    const existingBill = await getItem("bills", id);
+    if (!existingBill) throw new Error("Bill not found");
+    const updatedBill = { ...existingBill, ...data };
+    return updateItem("bills", updatedBill);
   },
 
-  delete: (id: string) => {
-    return db.prepare("DELETE FROM bills WHERE bill_id = ?").run(id);
+  delete: async (id: string) => {
+    await ensureDB();
+    return deleteItem("bills", id);
   },
 };
 
 // Transactions
 export const transactions = {
-  create: (data: Transaction) => {
-    const stmt = db.prepare(`
-      INSERT INTO transactions (tran_id, prod_ids, tran_source, tran_cost, tran_date, tran_note)
-      VALUES (?, ?, ?, ?, ?, ?)
-    `);
-    return stmt.run(
-      data.tran_id,
-      JSON.stringify(data.prod_ids),
-      data.tran_source,
-      data.tran_cost,
-      data.tran_date,
-      data.tran_note
-    );
+  create: async (data: Transaction) => {
+    await ensureDB();
+    return addItem("transactions", data);
   },
 
-  getAll: (): Transaction[] => {
-    const rows = db
-      .prepare("SELECT * FROM transactions")
-      .all() as TransactionRow[];
-    return rows.map((row) => ({
-      ...row,
-      prod_ids: JSON.parse(row.prod_ids),
-    })) as Transaction[];
+  getAll: async (): Promise<Transaction[]> => {
+    await ensureDB();
+    return getAllItems("transactions");
   },
 
-  getById: (id: string): Transaction | undefined => {
-    const row = db
-      .prepare("SELECT * FROM transactions WHERE tran_id = ?")
-      .get(id) as TransactionRow | undefined;
-    if (!row) return undefined;
-    return {
-      ...row,
-      prod_ids: JSON.parse(row.prod_ids),
-    } as Transaction;
+  getById: async (id: string): Promise<Transaction | undefined> => {
+    await ensureDB();
+    return getItem("transactions", id);
   },
 
-  update: (id: string, data: Partial<Transaction>) => {
-    const { prod_ids, ...restData } = data;
-    const updateData: Partial<TransactionRow> = { ...restData };
-    if (prod_ids) {
-      updateData.prod_ids = JSON.stringify(prod_ids);
-    }
-
-    const fields = Object.keys(updateData).filter((key) => key !== "tran_id");
-    const setClause = fields.map((field) => `${field} = ?`).join(", ");
-    const values = fields.map(
-      (field) => updateData[field as keyof TransactionRow]
-    );
-
-    const stmt = db.prepare(
-      `UPDATE transactions SET ${setClause} WHERE tran_id = ?`
-    );
-    return stmt.run(...values, id);
+  update: async (id: string, data: Partial<Transaction>) => {
+    await ensureDB();
+    const existingTransaction = await getItem("transactions", id);
+    if (!existingTransaction) throw new Error("Transaction not found");
+    const updatedTransaction = { ...existingTransaction, ...data };
+    return updateItem("transactions", updatedTransaction);
   },
 
-  delete: (id: string) => {
-    return db.prepare("DELETE FROM transactions WHERE tran_id = ?").run(id);
+  delete: async (id: string) => {
+    await ensureDB();
+    return deleteItem("transactions", id);
   },
 };

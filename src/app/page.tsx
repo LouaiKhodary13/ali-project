@@ -1,26 +1,26 @@
 // src/app/page.tsx
-'use client';
-import { BillsTable } from '@/app/components/BillsTable';
-import { CustomersTable } from '@/app/components/CustomersTable';
-import { FormCustomer } from '@/app/components/FormCustomer';
-import { TransactionsTable } from '@/app/components/TransactionsTable';
-import { Bill, Customer, Product, Transaction } from '@/app/types';
-import { useState } from 'react';
-import { AnalyticsExport } from './components/AnalyticsExport';
-import { FormBill } from './components/FormBill';
-import { FormProduct } from './components/FormProduct';
-import { FormTransaction } from './components/FormTransaction';
-import { ProductsTable } from './components/ProductsTable ';
-import { useBills } from './components/hooks/useBills';
-import { useCustomers } from './components/hooks/useCustomers';
-import { useProducts } from './components/hooks/useProducts';
-import { useTransactions } from './components/hooks/useTransactions';
-import { ar } from './lang/ar';
+"use client";
+import { BillsTable } from "@/app/components/BillsTable";
+import { CustomersTable } from "@/app/components/CustomersTable";
+import { FormCustomer } from "@/app/components/FormCustomer";
+import { TransactionsTable } from "@/app/components/TransactionsTable";
+import { Bill, Customer, Product, Transaction } from "@/app/types";
+import { useState } from "react";
+import { AnalyticsExport } from "./components/AnalyticsExport";
+import { FormBill } from "./components/FormBill";
+import { FormProduct } from "./components/FormProduct";
+import { FormTransaction } from "./components/FormTransaction";
+import { ProductsTable } from "./components/ProductsTable ";
+import { useBills } from "./components/hooks/useBills";
+import { useCustomers } from "./components/hooks/useCustomers";
+import { useProducts } from "./components/hooks/useProducts";
+import { useTransactions } from "./components/hooks/useTransactions";
+import { ar } from "./lang/ar";
 
 export default function Home() {
   const [activeTab, setActiveTab] = useState<
-    'customers' | 'bills' | 'transactions' | 'products' | 'analytics'
-  >('customers');
+    "customers" | "bills" | "transactions" | "products" | "analytics"
+  >("customers");
 
   // Customers
   const { customers, addCustomer, updateCustomer, deleteCustomer } =
@@ -41,9 +41,78 @@ export default function Home() {
   const [showTransactionForm, setShowTransactionForm] = useState(false);
 
   // Products
-  const { products, addProduct, updateProduct, deleteProduct } = useProducts();
+  const {
+    products,
+    addProduct,
+    updateProduct,
+    deleteProduct,
+    updateProductQuantities,
+  } = useProducts();
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [showProductForm, setShowProductForm] = useState(false);
+
+  // Bill handlers with inventory management
+  const handleCreateBill = async (billData: Omit<Bill, "bill_id">) => {
+    try {
+      // Create the bill
+      await addBill(billData);
+
+      // Update product quantities (subtract from inventory)
+      await updateProductQuantities(billData.prod_items, "subtract");
+
+      setShowBillForm(false);
+    } catch (error) {
+      console.error("Failed to create bill:", error);
+      alert("Failed to create bill");
+    }
+  };
+
+  const handleUpdateBill = async (billData: Omit<Bill, "bill_id">) => {
+    if (!editingBill) return;
+
+    try {
+      // First, restore the quantities from the original bill
+      if (editingBill.prod_items) {
+        await updateProductQuantities(editingBill.prod_items, "add");
+      }
+
+      // Update the bill
+      await updateBill(editingBill.bill_id, billData);
+
+      // Subtract new quantities
+      await updateProductQuantities(billData.prod_items, "subtract");
+
+      setEditingBill(null);
+      setShowBillForm(false);
+    } catch (error) {
+      console.error("Failed to update bill:", error);
+      // Restore original quantities on error
+      if (editingBill.prod_items) {
+        await updateProductQuantities(editingBill.prod_items, "subtract");
+      }
+      alert("Failed to update bill");
+    }
+  };
+
+  const handleDeleteBill = async (billId: string) => {
+    const billToDelete = bills.find((b) => b.bill_id === billId);
+    if (!billToDelete) return;
+
+    if (!confirm("Are you sure you want to delete this bill?")) return;
+
+    try {
+      await deleteBill(billId);
+
+      // Restore product quantities when bill is deleted
+      if (billToDelete.prod_items) {
+        await updateProductQuantities(billToDelete.prod_items, "add");
+      }
+    } catch (error) {
+      console.error("Failed to delete bill:", error);
+      alert("Failed to delete bill");
+    }
+  };
+
   return (
     <div className="p-6 max-w-5xl mx-auto">
       {/* Tabs Nav */}
@@ -51,46 +120,51 @@ export default function Home() {
         <button
           onClick={() => setActiveTab("customers")}
           className={`px-2 py-2 ${
-            activeTab === 'customers'
-              ? 'border-b-2 border-blue-600 font-bold'
-              : 'text-gray-900'
-          }`}>
+            activeTab === "customers"
+              ? "border-b-2 border-blue-600 font-bold"
+              : "text-gray-900"
+          }`}
+        >
           {ar.tabs.customers}
         </button>
         <button
           onClick={() => setActiveTab("bills")}
           className={`px-4 py-2 ${
-            activeTab === 'bills'
-              ? 'border-b-2 border-black font-bold'
-              : 'text-gray-900'
-          }`}>
+            activeTab === "bills"
+              ? "border-b-2 border-black font-bold"
+              : "text-gray-900"
+          }`}
+        >
           {ar.tabs.bills}
         </button>
         <button
           onClick={() => setActiveTab("transactions")}
           className={`px-4 py-2 ${
-            activeTab === 'transactions'
-              ? 'border-b-2 border-black font-bold'
-              : 'text-gray-900'
-          }`}>
+            activeTab === "transactions"
+              ? "border-b-2 border-black font-bold"
+              : "text-gray-900"
+          }`}
+        >
           {ar.tabs.transactions}
         </button>
         <button
           onClick={() => setActiveTab("products")}
           className={`px-4 py-2 ${
-            activeTab === 'products'
-              ? 'border-b-2 border-black font-bold'
-              : 'text-gray-900'
-          }`}>
+            activeTab === "products"
+              ? "border-b-2 border-black font-bold"
+              : "text-gray-900"
+          }`}
+        >
           {ar.tabs.products}
         </button>
         <button
-          onClick={() => setActiveTab('analytics')}
+          onClick={() => setActiveTab("analytics")}
           className={`px-4 py-2 ${
-            activeTab === 'analytics'
-              ? 'border-b-2 border-black font-bold'
-              : 'text-gray-900'
-          }`}>
+            activeTab === "analytics"
+              ? "border-b-2 border-black font-bold"
+              : "text-gray-900"
+          }`}
+        >
           {ar.tabs.analytics}
         </button>
       </div>
@@ -152,14 +226,13 @@ export default function Home() {
               customers={customers}
               products={products}
               initial={editingBill || {}}
+              isEditing={!!editingBill}
               onSubmit={async (data) => {
                 if (editingBill) {
-                  await updateBill(editingBill.bill_id, data);
-                  setEditingBill(null);
+                  await handleUpdateBill(data);
                 } else {
-                  await addBill(data);
+                  await handleCreateBill(data);
                 }
-                setShowBillForm(false);
               }}
               onCancel={() => {
                 setEditingBill(null);
@@ -180,18 +253,12 @@ export default function Home() {
           <BillsTable
             bills={bills}
             customers={customers}
-            products={products} // 👈 pass products here
+            products={products}
             onEdit={(b) => {
               setEditingBill(b);
               setShowBillForm(true);
             }}
-            onDelete={async (id) => {
-              try {
-                await deleteBill(id);
-              } catch (err) {
-                console.error("Failed to delete bill:", err);
-              }
-            }}
+            onDelete={handleDeleteBill}
           />
         </>
       )}
@@ -216,7 +283,7 @@ export default function Home() {
                   }
                   setShowTransactionForm(false);
                 } catch (err) {
-                  console.error('Failed to save transaction:', err);
+                  console.error("Failed to save transaction:", err);
                 }
               }}
               onCancel={() => {
@@ -246,7 +313,7 @@ export default function Home() {
               try {
                 await deleteTransaction(id);
               } catch (err) {
-                console.error('Failed to delete transaction:', err);
+                console.error("Failed to delete transaction:", err);
               }
             }}
           />
@@ -298,9 +365,9 @@ export default function Home() {
         </>
       )}
 
-      {activeTab === 'analytics' && (
+      {activeTab === "analytics" && (
         <>
-          <h1 className='text-2xl font-bold mb-4'>
+          <h1 className="text-2xl font-bold mb-4">
             {ar.analytics.Analytics_Reports}
           </h1>
           <AnalyticsExport

@@ -13,6 +13,31 @@ async function ensureDB() {
   await openDB();
 }
 
+// Helper function to migrate old bills to new structure
+async function migrateBillIfNeeded(bill: any): Promise<Bill> {
+  // If bill has old structure (prod_ids), convert to new structure
+  if (bill.prod_ids && !bill.prod_items) {
+    const products = await getAllItems<Product>("products");
+    const prodItems = bill.prod_ids.map((prodId: string) => {
+      const product = products.find((p) => p.prod_id === prodId);
+      return {
+        prod_id: prodId,
+        quantity: 1, // Default quantity
+        unit_price: product?.prod_price || 0,
+      };
+    });
+
+    return {
+      ...bill,
+      prod_items: prodItems,
+      // Remove old field
+      prod_ids: undefined,
+    };
+  }
+
+  return bill;
+}
+
 // Customers
 export const customers = {
   create: async (data: Customer) => {
@@ -73,37 +98,54 @@ export const products = {
     await ensureDB();
     return deleteItem("products", id);
   },
+
+  // Add method to check low stock
+  getLowStockProducts: async (threshold: number = 10): Promise<Product[]> => {
+    await ensureDB();
+    const allProducts = await getAllItems<Product>("products");
+    return allProducts.filter((product) => product.prod_quant <= threshold);
+  },
 };
 
 // Bills
 export const bills = {
   create: async (data: Bill) => {
     await ensureDB();
-    // Ensure paid_sum and left_sum are calculated if not provided
+
     const billData = {
       ...data,
       paid_sum: data.paid_sum ?? 0,
       left_sum: data.left_sum ?? data.bill_sum,
     };
-    return addItem("bills", billData);
+
+    // Create the bill (inventory management will be handled in the UI layer)
+    const result = await addItem("bills", billData);
+    return result;
   },
 
   getAll: async (): Promise<Bill[]> => {
     await ensureDB();
-    return getAllItems<Bill>("bills");
+    const allBills = await getAllItems<any>("bills");
+    // Migrate old bills if needed
+    const migratedBills = await Promise.all(
+      allBills.map((bill) => migrateBillIfNeeded(bill))
+    );
+    return migratedBills;
   },
 
   getById: async (id: string): Promise<Bill | undefined> => {
     await ensureDB();
-    return getItem<Bill>("bills", id);
+    const bill = await getItem<any>("bills", id);
+    return bill ? migrateBillIfNeeded(bill) : undefined;
   },
 
   update: async (id: string, data: Partial<Bill>) => {
     await ensureDB();
-    const existingBill = await getItem<Bill>("bills", id);
+    const existingBill = await getItem<any>("bills", id);
     if (!existingBill) throw new Error("Bill not found");
 
-    const updatedBill = { ...existingBill, ...data };
+    const migratedBill = await migrateBillIfNeeded(existingBill);
+    const updatedBill = { ...migratedBill, ...data };
 
     // Recalculate left_sum if bill_sum or paid_sum changed
     if (data.bill_sum !== undefined || data.paid_sum !== undefined) {
@@ -121,13 +163,14 @@ export const bills = {
   // Additional method to update payment
   updatePayment: async (id: string, paidAmount: number) => {
     await ensureDB();
-    const existingBill = await getItem<Bill>("bills", id);
+    const existingBill = await getItem<any>("bills", id);
     if (!existingBill) throw new Error("Bill not found");
 
+    const migratedBill = await migrateBillIfNeeded(existingBill);
     const updatedBill = {
-      ...existingBill,
+      ...migratedBill,
       paid_sum: paidAmount,
-      left_sum: existingBill.bill_sum - paidAmount,
+      left_sum: migratedBill.bill_sum - paidAmount,
     };
 
     return updateItem("bills", updatedBill);
@@ -136,15 +179,21 @@ export const bills = {
   // Get bills with outstanding balance
   getUnpaidBills: async (): Promise<Bill[]> => {
     await ensureDB();
-    const allBills = await getAllItems<Bill>("bills");
-    return allBills.filter((bill: Bill) => bill.left_sum > 0);
+    const allBills = await getAllItems<any>("bills");
+    const migratedBills = await Promise.all(
+      allBills.map((bill) => migrateBillIfNeeded(bill))
+    );
+    return migratedBills.filter((bill: Bill) => bill.left_sum > 0);
   },
 
   // Get bills by customer
   getByCustomer: async (custId: string): Promise<Bill[]> => {
     await ensureDB();
-    const allBills = await getAllItems<Bill>("bills");
-    return allBills.filter((bill: Bill) => bill.cust_id === custId);
+    const allBills = await getAllItems<any>("bills");
+    const migratedBills = await Promise.all(
+      allBills.map((bill) => migrateBillIfNeeded(bill))
+    );
+    return migratedBills.filter((bill: Bill) => bill.cust_id === custId);
   },
 };
 

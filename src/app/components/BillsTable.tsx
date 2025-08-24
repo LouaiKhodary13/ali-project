@@ -18,6 +18,20 @@ export const BillsTable: React.FC<Props> = ({
   onEdit,
   onDelete,
 }) => {
+  const getProductDetails = (bill: Bill) => {
+    if (!bill.prod_items || bill.prod_items.length === 0) {
+      return "—";
+    }
+
+    return bill.prod_items
+      .map((item) => {
+        const product = products.find((p) => p.prod_id === item.prod_id);
+        const productName = product?.prod_name || "منتج محذوف";
+        return `${productName} (${item.quantity}x${item.unit_price})`;
+      })
+      .join(", ");
+  };
+
   return (
     <div className="relative overflow-x-auto shadow-md sm:rounded-lg">
       <table className="w-full text-sm text-left rtl:text-right">
@@ -29,7 +43,6 @@ export const BillsTable: React.FC<Props> = ({
             <th scope="col" className="px-6 py-3">
               {ar.strings.Products}
             </th>
-
             <th scope="col" className="px-6 py-3">
               <div className="flex items-center">
                 {ar.strings.Total_Bill}
@@ -71,7 +84,6 @@ export const BillsTable: React.FC<Props> = ({
                 i % 2 === 0 ? "bg-gray-800" : "bg-gray-900"
               }`}
             >
-              {/* Customer Dropdown */}
               <td
                 scope="row"
                 className="px-6 py-4 font-medium text-white whitespace-nowrap"
@@ -84,44 +96,38 @@ export const BillsTable: React.FC<Props> = ({
               </td>
               <td
                 scope="row"
-                className="px-6 py-4 font-medium text-white whitespace-nowrap"
+                className="px-6 py-4 font-medium text-white"
+                style={{ maxWidth: "300px", wordWrap: "break-word" }}
               >
-                {(b.prod_ids ?? [])
-                  .map(
-                    (id) =>
-                      products.find((p) => p.prod_id === id)?.prod_name ||
-                      "المنتج محذوف"
-                  )
-                  .join(", ") || "—"}
-              </td>
-
-              <td
-                scope="row"
-                className="px-6 py-4 font-medium text-white whitespace-nowrap"
-              >
-                {b.bill_sum}
+                {getProductDetails(b)}
               </td>
               <td
                 scope="row"
                 className="px-6 py-4 font-medium text-white whitespace-nowrap"
               >
-                {b.paid_sum}
+                {b.bill_sum?.toFixed(2) || "0.00"}
               </td>
               <td
                 scope="row"
                 className="px-6 py-4 font-medium text-white whitespace-nowrap"
               >
-                {b.left_sum}
+                {b.paid_sum?.toFixed(2) || "0.00"}
               </td>
               <td
                 scope="row"
-                className="px-6 py-4 font-medium text-white  whitespace-nowrap"
+                className="px-6 py-4 font-medium text-white whitespace-nowrap"
+              >
+                {b.left_sum?.toFixed(2) || "0.00"}
+              </td>
+              <td
+                scope="row"
+                className="px-6 py-4 font-medium text-white whitespace-nowrap"
               >
                 {new Date(b.bill_date).toLocaleDateString()}
               </td>
               <td
                 scope="row"
-                className="px-6 py-4 font-medium text-white  whitespace-nowrap"
+                className="px-6 py-4 font-medium text-white whitespace-nowrap"
               >
                 {b.bill_note}
               </td>

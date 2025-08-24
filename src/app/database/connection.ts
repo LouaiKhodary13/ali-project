@@ -4,7 +4,7 @@ export async function openDB(): Promise<IDBDatabase> {
   if (dbIndexedDB) return dbIndexedDB;
 
   return new Promise((resolve, reject) => {
-    const request = indexedDB.open("MyAppDatabase", 2); // Increment version for schema changes
+    const request = indexedDB.open("MyAppDatabase", 3); // Increment version for schema changes
 
     request.onerror = () => reject(request.error);
     request.onsuccess = () => {
@@ -44,18 +44,9 @@ export async function openDB(): Promise<IDBDatabase> {
         billsStore.createIndex("bill_date", "bill_date", { unique: false });
         billsStore.createIndex("paid_sum", "paid_sum", { unique: false });
         billsStore.createIndex("left_sum", "left_sum", { unique: false });
-      } else if (oldVersion < 2) {
-        // Update existing bills store for version 2
-        const transaction = (event.target as IDBOpenDBRequest).transaction;
-        if (transaction) {
-          const billsStore = transaction.objectStore("bills");
-          if (!billsStore.indexNames.contains("paid_sum")) {
-            billsStore.createIndex("paid_sum", "paid_sum", { unique: false });
-          }
-          if (!billsStore.indexNames.contains("left_sum")) {
-            billsStore.createIndex("left_sum", "left_sum", { unique: false });
-          }
-        }
+      } else if (oldVersion < 3) {
+        // Migration for existing bills - this will need manual handling
+        console.log("Database migration needed for bills structure");
       }
 
       // Create transactions object store

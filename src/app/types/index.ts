@@ -20,6 +20,8 @@ export interface Bill {
   cust_id: string;
   prod_ids: string[];
   bill_sum: number;
+  paid_sum: number; // Add this field
+  left_sum: number; // Add this field
   bill_date: string;
   bill_note?: string;
 }

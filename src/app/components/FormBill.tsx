@@ -1,10 +1,10 @@
-import React, { useState, useEffect } from 'react';
-import { ar } from '../lang/ar';
-import { Bill, Customer, Product } from '@/app/types';
+import React, { useState, useEffect } from "react";
+import { ar } from "../lang/ar";
+import { Bill, Customer, Product } from "@/app/types";
 
 type Props = {
-  initial?: Partial<Omit<Bill, 'bill_id'>>;
-  onSubmit: (data: Omit<Bill, 'bill_id'>) => void;
+  initial?: Partial<Omit<Bill, "bill_id">>;
+  onSubmit: (data: Omit<Bill, "bill_id">) => void;
   onCancel?: () => void;
   customers: Customer[];
   products: Product[];
@@ -17,69 +17,83 @@ export const FormBill: React.FC<Props> = ({
   customers,
   products,
 }) => {
-  const [custId, setCustId] = useState(initial.cust_id || '');
+  const [custId, setCustId] = useState(initial.cust_id || "");
   const [prodIds, setProdIds] = useState<string[]>(initial.prod_ids || []);
-  const [billSum, setBillSum] = useState(initial.bill_sum?.toString() || '');
+  const [billSum, setBillSum] = useState(initial.bill_sum?.toString() || "");
+  const [paidSum, setPaidSum] = useState(initial.paid_sum?.toString() || "0");
   const [billDate, setBillDate] = useState(toDateInputValue(initial.bill_date));
-  const [billNote, setBillNote] = useState(initial.bill_note || '');
+  const [billNote, setBillNote] = useState(initial.bill_note || "");
 
   function toDateInputValue(date?: string | Date) {
-    if (!date) return '';
-    if (typeof date === 'string') {
+    if (!date) return "";
+    if (typeof date === "string") {
       return date.slice(0, 10);
     }
     if (date instanceof Date) {
       // convert Date object to YYYY-MM-DD
       return date.toISOString().slice(0, 10);
     }
-    return '';
+    return "";
   }
 
   useEffect(() => {
-    setCustId(initial.cust_id || '');
+    setCustId(initial.cust_id || "");
     setProdIds(initial.prod_ids || []);
-    setBillSum(initial.bill_sum?.toString() || '');
+    setBillSum(initial.bill_sum?.toString() || "");
+    setPaidSum(initial.paid_sum?.toString() || "0");
     setBillDate(toDateInputValue(initial.bill_date));
-    setBillNote(initial.bill_note || '');
+    setBillNote(initial.bill_note || "");
   }, [initial]);
 
   function submit(e: React.FormEvent) {
     e.preventDefault();
-    if (!custId.trim()) return alert('Customer is required');
+    if (!custId.trim()) return alert("Customer is required");
     if (prodIds.length === 0)
-      return alert('At least one product must be selected');
+      return alert("At least one product must be selected");
     if (!billSum || isNaN(Number(billSum)))
-      return alert('Valid bill total is required');
-    if (!billDate) return alert('Date is required');
+      return alert("Valid bill total is required");
+    if (!paidSum || isNaN(Number(paidSum)))
+      return alert("Valid paid amount is required");
+    if (Number(paidSum) < 0) return alert("Paid amount cannot be negative");
+    if (Number(paidSum) > Number(billSum))
+      return alert("Paid amount cannot exceed total bill amount");
+    if (!billDate) return alert("Date is required");
+
+    const billTotal = Number(billSum);
+    const paidAmount = Number(paidSum);
 
     onSubmit({
       cust_id: custId.trim(),
       prod_ids: prodIds,
-      bill_sum: Number(billSum),
+      bill_sum: billTotal,
+      paid_sum: paidAmount,
+      left_sum: billTotal - paidAmount,
       bill_date: new Date(billDate).toISOString(),
       bill_note: billNote.trim(),
     });
 
     // clear form if needed
-    setCustId('');
+    setCustId("");
     setProdIds([]);
-    setBillSum('');
-    setBillDate('');
-    setBillNote('');
+    setBillSum("");
+    setPaidSum("0");
+    setBillDate("");
+    setBillNote("");
   }
 
   return (
-    <form onSubmit={submit} className='space-y-2 p-4 border rounded'>
+    <form onSubmit={submit} className="space-y-2 p-4 border rounded">
       <div>
-        <label className='block text-sm font-bold mb-4'>
+        <label className="block text-sm font-bold mb-4">
           {ar.strings.Customer}
         </label>
         <select
           value={custId}
           onChange={(e) => setCustId(e.target.value)}
-          className='w-full p-2 border rounded'
-          required>
-          <option value=''>{ar.strings.Select_a_customer}</option>
+          className="w-full p-2 border rounded"
+          required
+        >
+          <option value="">{ar.strings.Select_a_customer}</option>
           {customers.map((c) => (
             <option key={c.cust_id} value={c.cust_id}>
               {c.cust_name}
@@ -89,14 +103,14 @@ export const FormBill: React.FC<Props> = ({
       </div>
 
       <div>
-        <label className='block text-sm font-bold mb-4'>
+        <label className="block text-sm font-bold mb-4">
           {ar.tabs.products}
         </label>
-        <div className='border rounded p-2 max-h-48 overflow-y-auto'>
+        <div className="border rounded p-2 max-h-48 overflow-y-auto">
           {products.map((p) => (
-            <label key={p.prod_id} className='flex items-center gap-2'>
+            <label key={p.prod_id} className="flex items-center gap-2">
               <input
-                type='checkbox'
+                type="checkbox"
                 value={p.prod_id}
                 checked={prodIds.includes(p.prod_id)}
                 onChange={(e) => {
@@ -114,53 +128,87 @@ export const FormBill: React.FC<Props> = ({
       </div>
 
       <div>
-        <label className='block text-sm font-bold mb-4'>
-          {ar.strings.Total}
+        <label className="block text-sm font-bold mb-4">
+          {ar.strings.Total_Bill}
         </label>
         <input
-          type='number'
+          type="number"
           value={billSum}
           onChange={(e) => setBillSum(e.target.value)}
-          className='w-full p-2 border rounded'
+          className="w-full p-2 border rounded"
+          min="0"
+          step="0.01"
           required
         />
       </div>
 
       <div>
-        <label className='block text-sm font-bold mb-4'>
+        <label className="block text-sm font-bold mb-4">
+          {ar.strings.Paid_Sum}
+        </label>
+        <input
+          type="number"
+          value={paidSum}
+          onChange={(e) => setPaidSum(e.target.value)}
+          className="w-full p-2 border rounded"
+          min="0"
+          step="0.01"
+          required
+        />
+      </div>
+
+      {/* Display calculated remaining amount */}
+      {billSum &&
+        paidSum &&
+        !isNaN(Number(billSum)) &&
+        !isNaN(Number(paidSum)) && (
+          <div>
+            <label className="block text-sm font-bold mb-4">
+              {ar.strings.Left_Sum}
+            </label>
+            <div className="w-full p-2 border rounded bg-gray-100">
+              {(Number(billSum) - Number(paidSum)).toFixed(2)}
+            </div>
+          </div>
+        )}
+
+      <div>
+        <label className="block text-sm font-bold mb-4">
           {ar.strings.Date}
         </label>
         <input
-          type='date'
+          type="date"
           value={billDate}
           onChange={(e) => setBillDate(e.target.value)}
-          className='w-full p-2 border rounded'
+          className="w-full p-2 border rounded"
           required
         />
       </div>
 
       <div>
-        <label className='block text-sm font-bold mb-4'>
+        <label className="block text-sm font-bold mb-4">
           {ar.strings.Note}
         </label>
         <input
-          type='text'
+          type="text"
           value={billNote}
           onChange={(e) => setBillNote(e.target.value)}
-          className='w-full p-2 border rounded'
+          className="w-full p-2 border rounded"
         />
       </div>
 
-      <div className='flex gap-2 fon-bold'>
+      <div className="flex gap-2 fon-bold">
         <button
-          type='submit'
-          className='px-3 py-1 bg-blue-600 text-white rounded'>
+          type="submit"
+          className="px-3 py-1 bg-blue-600 text-white rounded"
+        >
           {ar.buttons.Save}
         </button>
         <button
-          type='button'
+          type="button"
           onClick={onCancel}
-          className='px-3 py-1 border rounded'>
+          className="px-3 py-1 border rounded"
+        >
           {ar.buttons.Cancel}
         </button>
       </div>

@@ -115,35 +115,6 @@ async function exportForMobile(wb: XLSX.WorkBook, filename: string) {
   }
 }
 
-async function exportForMobileFallback(wb: XLSX.WorkBook, filename: string) {
-  // Alternative method using binary string
-  const binaryString = XLSX.write(wb, {
-    bookType: "xlsx",
-    type: "binary",
-    compression: false,
-  });
-
-  // Convert binary string to Uint8Array then to base64
-  const uint8Array = new Uint8Array(binaryString.length);
-  for (let i = 0; i < binaryString.length; i++) {
-    uint8Array[i] = binaryString.charCodeAt(i);
-  }
-
-  const base64String = uint8ArrayToBase64(uint8Array);
-
-  const result = await Filesystem.writeFile({
-    path: `exports/fallback_${filename}`,
-    data: base64String,
-    directory: Directory.Documents,
-    encoding: Encoding.UTF8,
-  });
-
-  console.log("Fallback file written:", result.uri);
-  alert(
-    `File saved using fallback method to Documents/exports/fallback_${filename}`
-  );
-}
-
 async function exportForWeb(wb: XLSX.WorkBook, filename: string) {
   const wbout = XLSX.write(wb, { bookType: "xlsx", type: "array" });
   const blob = new Blob([wbout], {

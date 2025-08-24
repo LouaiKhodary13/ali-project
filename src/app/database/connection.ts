@@ -4,7 +4,7 @@ export async function openDB(): Promise<IDBDatabase> {
   if (dbIndexedDB) return dbIndexedDB;
 
   return new Promise((resolve, reject) => {
-    const request = indexedDB.open("MyAppDatabase", 1);
+    const request = indexedDB.open("MyAppDatabase", 2); // Increment version for schema changes
 
     request.onerror = () => reject(request.error);
     request.onsuccess = () => {
@@ -14,6 +14,7 @@ export async function openDB(): Promise<IDBDatabase> {
 
     request.onupgradeneeded = (event) => {
       const db = (event.target as IDBOpenDBRequest).result;
+      const oldVersion = event.oldVersion;
 
       // Create customers object store
       if (!db.objectStoreNames.contains("customers")) {
@@ -34,13 +35,27 @@ export async function openDB(): Promise<IDBDatabase> {
         productsStore.createIndex("prod_name", "prod_name", { unique: false });
       }
 
-      // Create bills object store
+      // Create bills object store with updated schema
       if (!db.objectStoreNames.contains("bills")) {
         const billsStore = db.createObjectStore("bills", {
           keyPath: "bill_id",
         });
         billsStore.createIndex("cust_id", "cust_id", { unique: false });
         billsStore.createIndex("bill_date", "bill_date", { unique: false });
+        billsStore.createIndex("paid_sum", "paid_sum", { unique: false });
+        billsStore.createIndex("left_sum", "left_sum", { unique: false });
+      } else if (oldVersion < 2) {
+        // Update existing bills store for version 2
+        const transaction = (event.target as IDBOpenDBRequest).transaction;
+        if (transaction) {
+          const billsStore = transaction.objectStore("bills");
+          if (!billsStore.indexNames.contains("paid_sum")) {
+            billsStore.createIndex("paid_sum", "paid_sum", { unique: false });
+          }
+          if (!billsStore.indexNames.contains("left_sum")) {
+            billsStore.createIndex("left_sum", "left_sum", { unique: false });
+          }
+        }
       }
 
       // Create transactions object store

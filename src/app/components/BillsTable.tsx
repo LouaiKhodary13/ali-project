@@ -27,7 +27,9 @@ export const BillsTable: React.FC<Props> = ({
       .map((item) => {
         const product = products.find((p) => p.prod_id === item.prod_id);
         const productName = product?.prod_name || "منتج محذوف";
-        return `${productName} (${item.quantity}x${item.unit_price})`;
+        return `${productName} (الكمية: ${
+          item.quantity
+        }, السعر: ${item.unit_price.toFixed(2)})`;
       })
       .join(", ");
   };

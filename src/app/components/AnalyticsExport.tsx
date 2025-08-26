@@ -190,11 +190,11 @@ export function AnalyticsExport({
         </div>
 
         {/* Top Products */}
-        <div className=" p-4 rounded-lg shadow-md border">
+        <div className="bg-white p-4 rounded-lg shadow-md border">
           <h4 className="font-semibold text-black mb-3">
             {ar.analytics.Top_Selling_Products}
           </h4>
-          <div className="space-y-2 text-white">
+          <div className="space-y-2">
             {currentAnalytics.topSellingProducts
               .slice(0, 3)
               .map((item, index) => (
@@ -208,9 +208,12 @@ export function AnalyticsExport({
                 </div>
               ))}
             {currentAnalytics.topSellingProducts.length === 0 && (
-              <p className="text-white text-sm">
-                {ar.analytics.No_sales_data_available}
-              </p>
+              <div className="text-gray-500 text-sm">
+                <p>{ar.analytics.No_sales_data_available}</p>
+                <p className="text-xs mt-1">
+                  Bills: {bills.length}, Products: {products.length}
+                </p>
+              </div>
             )}
           </div>
         </div>

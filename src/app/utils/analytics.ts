@@ -90,18 +90,19 @@ export function calculateAnalytics(
 
   const netProfit = totalEarned - totalSpent;
 
-  // Top selling products (from bills - count how many times each product appears)
+  // Top selling products (from bills - using the new prod_items structure)
   const productSales = new Map<string, { quantity: number; revenue: number }>();
 
   filteredBills.forEach((bill) => {
-    if (bill.prod_ids && Array.isArray(bill.prod_ids)) {
-      const revenuePerProduct = (bill.paid_sum || 0) / bill.prod_ids.length; // Split revenue equally among products
-
-      bill.prod_ids.forEach((prodId) => {
-        const current = productSales.get(prodId) || { quantity: 0, revenue: 0 };
-        productSales.set(prodId, {
-          quantity: current.quantity + 1, // Count each sale as 1 quantity
-          revenue: current.revenue + revenuePerProduct,
+    if (bill.prod_items && Array.isArray(bill.prod_items)) {
+      bill.prod_items.forEach((item) => {
+        const current = productSales.get(item.prod_id) || {
+          quantity: 0,
+          revenue: 0,
+        };
+        productSales.set(item.prod_id, {
+          quantity: current.quantity + item.quantity,
+          revenue: current.revenue + item.quantity * item.unit_price,
         });
       });
     }

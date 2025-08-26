@@ -34,7 +34,7 @@ export interface Bill {
 
 export interface Transaction {
   tran_id: string;
-  prod_ids: string[];
+  prod_items: BillProduct[];
   tran_source: string;
   tran_cost: number;
   tran_date: string;

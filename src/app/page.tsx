@@ -71,25 +71,57 @@ export default function Home() {
     if (!editingBill) return;
 
     try {
-      // First, restore the quantities from the original bill
+      // Calculate the difference in quantities for each product
+      const quantityChanges = new Map<string, number>();
+
+      // First, add back all original quantities
       if (editingBill.prod_items) {
-        await updateProductQuantities(editingBill.prod_items, "add");
+        editingBill.prod_items.forEach((item) => {
+          quantityChanges.set(
+            item.prod_id,
+            (quantityChanges.get(item.prod_id) || 0) + item.quantity
+          );
+        });
       }
 
-      // Update the bill
+      // Then subtract the new quantities
+      billData.prod_items.forEach((item) => {
+        quantityChanges.set(
+          item.prod_id,
+          (quantityChanges.get(item.prod_id) || 0) - item.quantity
+        );
+      });
+
+      // Update the bill first
       await updateBill(editingBill.bill_id, billData);
 
-      // Subtract new quantities
-      await updateProductQuantities(billData.prod_items, "subtract");
+      // Apply net changes to inventory
+      quantityChanges.forEach(async (netChange, prod_id) => {
+        if (netChange !== 0) {
+          const changeItem: {
+            prod_id: string;
+            quantity: number;
+            unit_price: number;
+          } = {
+            prod_id,
+            quantity: Math.abs(netChange),
+            unit_price: 0, // Price doesn't matter for quantity updates
+          };
+
+          if (netChange > 0) {
+            // Net increase means we need to add back to inventory
+            await updateProductQuantities([changeItem], "add");
+          } else if (netChange < 0) {
+            // Net decrease means we need to subtract from inventory
+            await updateProductQuantities([changeItem], "subtract");
+          }
+        }
+      });
 
       setEditingBill(null);
       setShowBillForm(false);
     } catch (error) {
       console.error("Failed to update bill:", error);
-      // Restore original quantities on error
-      if (editingBill.prod_items) {
-        await updateProductQuantities(editingBill.prod_items, "subtract");
-      }
       alert("Failed to update bill");
     }
   };
@@ -110,6 +142,109 @@ export default function Home() {
     } catch (error) {
       console.error("Failed to delete bill:", error);
       alert("Failed to delete bill");
+    }
+  };
+
+  // Transaction handlers with inventory management
+  const handleCreateTransaction = async (
+    transactionData: Omit<Transaction, "tran_id">
+  ) => {
+    try {
+      // Create the transaction
+      await addTransaction(transactionData);
+
+      // Update product quantities (add to inventory for purchases)
+      await updateProductQuantities(transactionData.prod_items, "add");
+
+      setShowTransactionForm(false);
+    } catch (error) {
+      console.error("Failed to create transaction:", error);
+      alert("Failed to create transaction");
+    }
+  };
+
+  const handleUpdateTransaction = async (
+    transactionData: Omit<Transaction, "tran_id">
+  ) => {
+    if (!editingTransaction) return;
+
+    try {
+      // Calculate the difference in quantities for each product
+      const quantityChanges = new Map<string, number>();
+
+      // First, subtract all original quantities (reverse the original addition)
+      if (editingTransaction.prod_items) {
+        editingTransaction.prod_items.forEach((item) => {
+          quantityChanges.set(
+            item.prod_id,
+            (quantityChanges.get(item.prod_id) || 0) - item.quantity
+          );
+        });
+      }
+
+      // Then add the new quantities
+      transactionData.prod_items.forEach((item) => {
+        quantityChanges.set(
+          item.prod_id,
+          (quantityChanges.get(item.prod_id) || 0) + item.quantity
+        );
+      });
+
+      // Update the transaction first
+      await updateTransaction(editingTransaction.tran_id, transactionData);
+
+      // Apply net changes to inventory
+      quantityChanges.forEach(async (netChange, prod_id) => {
+        if (netChange !== 0) {
+          const changeItem: {
+            prod_id: string;
+            quantity: number;
+            unit_price: number;
+          } = {
+            prod_id,
+            quantity: Math.abs(netChange),
+            unit_price: 0, // Price doesn't matter for quantity updates
+          };
+
+          if (netChange > 0) {
+            // Net increase means we need to add to inventory
+            await updateProductQuantities([changeItem], "add");
+          } else if (netChange < 0) {
+            // Net decrease means we need to subtract from inventory
+            await updateProductQuantities([changeItem], "subtract");
+          }
+        }
+      });
+
+      setEditingTransaction(null);
+      setShowTransactionForm(false);
+    } catch (error) {
+      console.error("Failed to update transaction:", error);
+      alert("Failed to update transaction");
+    }
+  };
+
+  const handleDeleteTransaction = async (transactionId: string) => {
+    const transactionToDelete = transactions.find(
+      (t) => t.tran_id === transactionId
+    );
+    if (!transactionToDelete) return;
+
+    if (!confirm("Are you sure you want to delete this transaction?")) return;
+
+    try {
+      await deleteTransaction(transactionId);
+
+      // Remove product quantities when transaction is deleted
+      if (transactionToDelete.prod_items) {
+        await updateProductQuantities(
+          transactionToDelete.prod_items,
+          "subtract"
+        );
+      }
+    } catch (error) {
+      console.error("Failed to delete transaction:", error);
+      alert("Failed to delete transaction");
     }
   };
 
@@ -273,17 +408,12 @@ export default function Home() {
             <FormTransaction
               products={products}
               initial={editingTransaction || {}}
+              isEditing={!!editingTransaction}
               onSubmit={async (data) => {
-                try {
-                  if (editingTransaction) {
-                    await updateTransaction(editingTransaction.tran_id, data);
-                    setEditingTransaction(null);
-                  } else {
-                    await addTransaction(data);
-                  }
-                  setShowTransactionForm(false);
-                } catch (err) {
-                  console.error("Failed to save transaction:", err);
+                if (editingTransaction) {
+                  await handleUpdateTransaction(data);
+                } else {
+                  await handleCreateTransaction(data);
                 }
               }}
               onCancel={() => {
@@ -309,13 +439,7 @@ export default function Home() {
               setEditingTransaction(t);
               setShowTransactionForm(true);
             }}
-            onDelete={async (id) => {
-              try {
-                await deleteTransaction(id);
-              } catch (err) {
-                console.error("Failed to delete transaction:", err);
-              }
-            }}
+            onDelete={handleDeleteTransaction}
           />
         </>
       )}

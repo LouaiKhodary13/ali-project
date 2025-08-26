@@ -46,6 +46,10 @@ export const ar = {
   transaction: {
     Source: "المصدر",
     Cost: "الكلفة",
+    Date: "التاريخ",
+    source: "المصدر",
+    cost: "الكلفة",
+    date: "التاريخ",
   },
   analytics: {
     Export_Analytics: "تصدير التحليلات",
@@ -67,7 +71,7 @@ export const ar = {
     No_customer_data_available: "لا توجد بيانات العملاء المتاحة",
     Monthly_Breakdown: "التوزيع الشهري",
     Month: "الشهر",
-    Earned: "مستحق",
+    Earned: "المدخول",
     Spent: "تم صرفه",
     Profit: "الربح",
     Total_Spent: "إجمالي الإنفاق:",

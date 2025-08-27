@@ -14,11 +14,13 @@ async function ensureDB() {
 }
 
 // Helper function to migrate old bills to new structure
-async function migrateBillIfNeeded(bill: any): Promise<Bill> {
+async function migrateBillIfNeeded(bill: unknown): Promise<Bill> {
+  const billData = bill as Bill & { prod_ids?: string[] };
+
   // If bill has old structure (prod_ids), convert to new structure
-  if (bill.prod_ids && !bill.prod_items) {
+  if (billData.prod_ids && !billData.prod_items) {
     const products = await getAllItems<Product>("products");
-    const prodItems = bill.prod_ids.map((prodId: string) => {
+    const prodItems = billData.prod_ids.map((prodId: string) => {
       const product = products.find((p) => p.prod_id === prodId);
       return {
         prod_id: prodId,
@@ -27,15 +29,15 @@ async function migrateBillIfNeeded(bill: any): Promise<Bill> {
       };
     });
 
+    // Create a new bill object without the old prod_ids field
+    const { ...billWithoutProdIds } = billData;
     return {
-      ...bill,
+      ...billWithoutProdIds,
       prod_items: prodItems,
-      // Remove old field
-      prod_ids: undefined,
     };
   }
 
-  return bill;
+  return billData;
 }
 
 // Customers
@@ -125,7 +127,7 @@ export const bills = {
 
   getAll: async (): Promise<Bill[]> => {
     await ensureDB();
-    const allBills = await getAllItems<any>("bills");
+    const allBills = await getAllItems<unknown>("bills");
     // Migrate old bills if needed
     const migratedBills = await Promise.all(
       allBills.map((bill) => migrateBillIfNeeded(bill))
@@ -135,13 +137,13 @@ export const bills = {
 
   getById: async (id: string): Promise<Bill | undefined> => {
     await ensureDB();
-    const bill = await getItem<any>("bills", id);
+    const bill = await getItem<unknown>("bills", id);
     return bill ? migrateBillIfNeeded(bill) : undefined;
   },
 
   update: async (id: string, data: Partial<Bill>) => {
     await ensureDB();
-    const existingBill = await getItem<any>("bills", id);
+    const existingBill = await getItem<unknown>("bills", id);
     if (!existingBill) throw new Error("Bill not found");
 
     const migratedBill = await migrateBillIfNeeded(existingBill);
@@ -163,7 +165,7 @@ export const bills = {
   // Additional method to update payment
   updatePayment: async (id: string, paidAmount: number) => {
     await ensureDB();
-    const existingBill = await getItem<any>("bills", id);
+    const existingBill = await getItem<unknown>("bills", id);
     if (!existingBill) throw new Error("Bill not found");
 
     const migratedBill = await migrateBillIfNeeded(existingBill);
@@ -179,7 +181,7 @@ export const bills = {
   // Get bills with outstanding balance
   getUnpaidBills: async (): Promise<Bill[]> => {
     await ensureDB();
-    const allBills = await getAllItems<any>("bills");
+    const allBills = await getAllItems<unknown>("bills");
     const migratedBills = await Promise.all(
       allBills.map((bill) => migrateBillIfNeeded(bill))
     );
@@ -189,7 +191,7 @@ export const bills = {
   // Get bills by customer
   getByCustomer: async (custId: string): Promise<Bill[]> => {
     await ensureDB();
-    const allBills = await getAllItems<any>("bills");
+    const allBills = await getAllItems<unknown>("bills");
     const migratedBills = await Promise.all(
       allBills.map((bill) => migrateBillIfNeeded(bill))
     );

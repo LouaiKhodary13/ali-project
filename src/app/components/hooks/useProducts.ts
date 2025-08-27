@@ -94,43 +94,33 @@ export function useProducts() {
 
   // Update product quantities (for bill operations)
   const updateProductQuantities = async (
-    billItems: BillProduct[],
+    items: { prod_id: string; quantity: number; unit_price: number }[],
     operation: "add" | "subtract"
   ) => {
     try {
-      const updates: Promise<any>[] = [];
-
-      for (const item of billItems) {
+      for (const item of items) {
         const product = products.find((p) => p.prod_id === item.prod_id);
-        if (!product) continue;
+        if (product) {
+          const newQuantity =
+            operation === "add"
+              ? product.prod_quant + item.quantity
+              : product.prod_quant - item.quantity;
 
-        const newQuantity =
-          operation === "subtract"
-            ? product.prod_quant - item.quantity
-            : product.prod_quant + item.quantity;
+          if (newQuantity < 0) {
+            throw new Error(
+              `Insufficient quantity for product ${product.prod_name}`
+            );
+          }
 
-        // Update in database - wrap in void function to handle return type
-        updates.push(
-          productService
-            .update(item.prod_id, { prod_quant: newQuantity })
-            .then(() => void 0)
-        );
-
-        // Update in local state immediately
-        setProducts((prev) =>
-          prev.map((p) =>
-            p.prod_id === item.prod_id ? { ...p, prod_quant: newQuantity } : p
-          )
-        );
+          await updateProduct(product.prod_id, {
+            ...product,
+            prod_quant: newQuantity,
+          });
+        }
       }
-
-      await Promise.all(updates);
-    } catch (err) {
-      setError("Failed to update product quantities");
-      console.error(err);
-      // Reload products to ensure consistency
-      await loadProducts();
-      throw err;
+    } catch (error: unknown) {
+      console.error("Failed to update product quantities:", error);
+      throw error;
     }
   };
 

@@ -12,6 +12,7 @@ export const ar = {
     Bills_Management: "إدارة الفواتير",
     Transactions_Management: "إدارة المعاملات",
     Products_Management: "إدارة المنتجات",
+    Analytics_Reports: "التحليلات والتقارير",
   },
   buttons: {
     Add_Customer: "إضافة زبون",
@@ -82,5 +83,15 @@ export const ar = {
     Selected_Range: "النطاق المحدد:",
     Analytics_Reports: "التحليلات والتقارير",
     Analytics_Result: "نتيجة التحليلات:",
+  },
+  messages: {
+    Failed_to_create_bill: "فشل في إنشاء الفاتورة",
+    Failed_to_update_bill: "فشل في تحديث الفاتورة",
+    Failed_to_delete_bill: "فشل في حذف الفاتورة",
+    Failed_to_create_transaction: "فشل في إنشاء المعاملة",
+    Failed_to_update_transaction: "فشل في تحديث المعاملة",
+    Failed_to_delete_transaction: "فشل في حذف المعاملة",
+    Are_you_sure_delete_bill: "هل أنت متأكد من حذف هذه الفاتورة؟",
+    Are_you_sure_delete_transaction: "هل أنت متأكد من حذف هذه المعاملة؟",
   },
 };

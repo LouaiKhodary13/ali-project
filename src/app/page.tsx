@@ -2,6 +2,7 @@
 "use client";
 import { BillsTable } from "@/app/components/BillsTable";
 import { CustomersTable } from "@/app/components/CustomersTable";
+import { CustomerBillsModal } from "@/app/components/CustomerBillsModal";
 import { FormCustomer } from "@/app/components/FormCustomer";
 import { TransactionsTable } from "@/app/components/TransactionsTable";
 import { Bill, Customer, Product, Transaction } from "@/app/types";
@@ -15,7 +16,7 @@ import { useBills } from "./components/hooks/useBills";
 import { useCustomers } from "./components/hooks/useCustomers";
 import { useProducts } from "./components/hooks/useProducts";
 import { useTransactions } from "./components/hooks/useTransactions";
-import { ar } from "./lang/ar";
+import { ar } from "@/app/lang/ar";
 
 export default function Home() {
   const [activeTab, setActiveTab] = useState<
@@ -27,6 +28,12 @@ export default function Home() {
     useCustomers();
   const [editingCustomer, setEditingCustomer] = useState<Customer | null>(null);
   const [showCustomerForm, setShowCustomerForm] = useState(false);
+
+  // Customer Bills Modal
+  const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(
+    null
+  );
+  const [showCustomerBillsModal, setShowCustomerBillsModal] = useState(false);
 
   // Bills
   const { bills, addBill, updateBill, deleteBill } = useBills();
@@ -51,6 +58,20 @@ export default function Home() {
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [showProductForm, setShowProductForm] = useState(false);
 
+  // Customer Bills handlers
+  const handleViewCustomerBills = (customerId: string) => {
+    const customer = customers.find((c) => c.cust_id === customerId);
+    if (customer) {
+      setSelectedCustomer(customer);
+      setShowCustomerBillsModal(true);
+    }
+  };
+
+  const handleCloseCustomerBillsModal = () => {
+    setShowCustomerBillsModal(false);
+    setSelectedCustomer(null);
+  };
+
   // Bill handlers with inventory management
   const handleCreateBill = async (billData: Omit<Bill, "bill_id">) => {
     try {
@@ -63,7 +84,7 @@ export default function Home() {
       setShowBillForm(false);
     } catch (error) {
       console.error("Failed to create bill:", error);
-      alert("Failed to create bill");
+      alert(ar.messages.Failed_to_create_bill);
     }
   };
 
@@ -122,7 +143,7 @@ export default function Home() {
       setShowBillForm(false);
     } catch (error) {
       console.error("Failed to update bill:", error);
-      alert("Failed to update bill");
+      alert(ar.messages.Failed_to_update_bill);
     }
   };
 
@@ -130,7 +151,7 @@ export default function Home() {
     const billToDelete = bills.find((b) => b.bill_id === billId);
     if (!billToDelete) return;
 
-    if (!confirm("Are you sure you want to delete this bill?")) return;
+    if (!confirm(ar.messages.Are_you_sure_delete_bill)) return;
 
     try {
       await deleteBill(billId);
@@ -141,7 +162,7 @@ export default function Home() {
       }
     } catch (error) {
       console.error("Failed to delete bill:", error);
-      alert("Failed to delete bill");
+      alert(ar.messages.Failed_to_delete_bill);
     }
   };
 
@@ -159,7 +180,7 @@ export default function Home() {
       setShowTransactionForm(false);
     } catch (error) {
       console.error("Failed to create transaction:", error);
-      alert("Failed to create transaction");
+      alert(ar.messages.Failed_to_create_transaction);
     }
   };
 
@@ -220,7 +241,7 @@ export default function Home() {
       setShowTransactionForm(false);
     } catch (error) {
       console.error("Failed to update transaction:", error);
-      alert("Failed to update transaction");
+      alert(ar.messages.Failed_to_update_transaction);
     }
   };
 
@@ -230,7 +251,7 @@ export default function Home() {
     );
     if (!transactionToDelete) return;
 
-    if (!confirm("Are you sure you want to delete this transaction?")) return;
+    if (!confirm(ar.messages.Are_you_sure_delete_transaction)) return;
 
     try {
       await deleteTransaction(transactionId);
@@ -244,7 +265,7 @@ export default function Home() {
       }
     } catch (error) {
       console.error("Failed to delete transaction:", error);
-      alert("Failed to delete transaction");
+      alert(ar.messages.Failed_to_delete_transaction);
     }
   };
 
@@ -346,6 +367,7 @@ export default function Home() {
               setShowCustomerForm(true);
             }}
             onDelete={(id) => deleteCustomer(id)}
+            onViewBills={(customerId) => handleViewCustomerBills(customerId)}
           />
         </>
       )}
@@ -492,7 +514,7 @@ export default function Home() {
       {activeTab === "analytics" && (
         <>
           <h1 className="text-2xl font-bold mb-4">
-            {ar.analytics.Analytics_Reports}
+            {ar.titles.Analytics_Reports}
           </h1>
           <AnalyticsExport
             bills={bills}
@@ -501,6 +523,16 @@ export default function Home() {
             products={products}
           />
         </>
+      )}
+
+      {/* Customer Bills Modal */}
+      {showCustomerBillsModal && selectedCustomer && (
+        <CustomerBillsModal
+          customer={selectedCustomer}
+          bills={bills}
+          onClose={handleCloseCustomerBillsModal}
+          products={products}
+        />
       )}
     </div>
   );

@@ -2,7 +2,7 @@ import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
 import { AnalyticsData, DateRange } from "./analytics";
 import { Capacitor } from "@capacitor/core";
-import { Filesystem, Directory, Encoding } from "@capacitor/filesystem";
+import { Filesystem, Directory } from "@capacitor/filesystem";
 import { Share } from "@capacitor/share";
 
 export async function exportAnalyticsToExcel(
@@ -29,7 +29,7 @@ export async function exportAnalyticsToExcel(
     // Generate filename
     const timestamp = new Date().toISOString().split("T")[0].replace(/-/g, "");
     const safeRangeString = range.replace(/[^a-zA-Z0-9_-]/g, "_");
-    const filename = `analytics_${safeRangeString}_${timestamp}.xlsx`;
+    const filename = `تقرير_التحليلات_${safeRangeString}_${timestamp}.xlsx`;
 
     console.log("Generated filename:", filename);
 
@@ -77,7 +77,6 @@ async function exportForMobile(wb: XLSX.WorkBook, filename: string) {
       path: `exports/${filename}`,
       data: base64String,
       directory: Directory.Documents,
-      // Remove encoding parameter or use Encoding.UTF8 but ensure data is base64
     });
 
     console.log("File written successfully:", result.uri);
@@ -98,17 +97,17 @@ async function exportForMobile(wb: XLSX.WorkBook, filename: string) {
       const canShare = await Share.canShare();
       if (canShare) {
         await Share.share({
-          title: "Analytics Export",
-          text: "Your analytics report is ready",
+          title: "تصدير التحليلات",
+          text: "تقرير التحليلات جاهز",
           url: result.uri,
-          dialogTitle: "Share Analytics Report",
+          dialogTitle: "مشاركة تقرير التحليلات",
         });
       } else {
-        alert(`File saved successfully to Documents/exports/${filename}`);
+        alert(`تم حفظ الملف بنجاح في Documents/exports/${filename}`);
       }
     } catch (shareError) {
       console.log("Share failed, but file was saved:", shareError);
-      alert(`File saved successfully to Documents/exports/${filename}`);
+      alert(`تم حفظ الملف بنجاح في Documents/exports/${filename}`);
     }
   } catch (error) {
     console.error("Mobile export failed:", error);
@@ -141,102 +140,279 @@ function uint8ArrayToBase64(uint8Array: Uint8Array): string {
   return btoa(binary);
 }
 
+// Common styles
+const headerStyle = {
+  font: { bold: true, sz: 14, color: { rgb: "FFFFFF" } },
+  fill: { fgColor: { rgb: "4472C4" } },
+  alignment: { horizontal: "center", vertical: "center" },
+  border: {
+    top: { style: "thin", color: { rgb: "000000" } },
+    bottom: { style: "thin", color: { rgb: "000000" } },
+    left: { style: "thin", color: { rgb: "000000" } },
+    right: { style: "thin", color: { rgb: "000000" } },
+  },
+};
+
+const titleStyle = {
+  font: { bold: true, sz: 16, color: { rgb: "2F5597" } },
+  alignment: { horizontal: "center", vertical: "center" },
+};
+
+const dataStyle = {
+  alignment: { horizontal: "center", vertical: "center" },
+  border: {
+    top: { style: "thin", color: { rgb: "CCCCCC" } },
+    bottom: { style: "thin", color: { rgb: "CCCCCC" } },
+    left: { style: "thin", color: { rgb: "CCCCCC" } },
+    right: { style: "thin", color: { rgb: "CCCCCC" } },
+  },
+};
+
+const numberStyle = {
+  ...dataStyle,
+  numFmt: "#,##0.00",
+};
+
 function addFinancialOverviewSheet(
   wb: XLSX.WorkBook,
   analytics: AnalyticsData,
   dateRange: DateRange
 ) {
-  const data = [
-    ["Financial Overview", ""],
+  const ws = XLSX.utils.aoa_to_sheet([]);
+
+  // Add title
+  XLSX.utils.sheet_add_aoa(ws, [["النظرة المالية العامة"]], { origin: "A1" });
+  ws["A1"].s = titleStyle;
+
+  // Add financial data
+  const financialData = [
     ["", ""],
-    ["Total Earned", `${analytics.totalEarned.toFixed(2)}`],
-    ["Total Spent", `${analytics.totalSpent.toFixed(2)}`],
-    ["Net Profit", `${analytics.netProfit.toFixed(2)}`],
+    ["إجمالي الأرباح", analytics.totalEarned.toFixed(2)],
+    ["إجمالي المصروفات", analytics.totalSpent.toFixed(2)],
+    ["صافي الربح", analytics.netProfit.toFixed(2)],
     ["", ""],
-    ["Date Range", dateRange],
-    ["Export Date", new Date().toLocaleDateString()],
+    ["الفترة الزمنية", dateRange],
+    ["تاريخ التصدير", new Date().toLocaleDateString("ar-EG")],
   ];
 
-  const ws = XLSX.utils.aoa_to_sheet(data);
+  XLSX.utils.sheet_add_aoa(ws, financialData, { origin: "A3" });
+
+  // Apply styles
+  ws["A4"].s = { ...dataStyle, font: { bold: true } };
+  ws["A5"].s = { ...dataStyle, font: { bold: true } };
+  ws["A6"].s = { ...dataStyle, font: { bold: true } };
+  ws["A8"].s = { ...dataStyle, font: { bold: true } };
+  ws["A9"].s = { ...dataStyle, font: { bold: true } };
+
+  ws["B4"].s = numberStyle;
+  ws["B5"].s = numberStyle;
+  ws["B6"].s = numberStyle;
+  ws["B8"].s = dataStyle;
+  ws["B9"].s = dataStyle;
 
   // Set column widths
-  ws["!cols"] = [{ width: 20 }, { width: 15 }];
+  ws["!cols"] = [{ width: 25 }, { width: 20 }];
 
-  XLSX.utils.book_append_sheet(wb, ws, "Financial Overview");
+  // Merge title cell
+  ws["!merges"] = [{ s: { c: 0, r: 0 }, e: { c: 1, r: 0 } }];
+
+  XLSX.utils.book_append_sheet(wb, ws, "النظرة المالية");
 }
 
 function addTopProductsSheet(wb: XLSX.WorkBook, analytics: AnalyticsData) {
-  const data = [
-    ["Top Selling Products", "", ""],
-    ["", "", ""],
-    ["Product Name", "Quantity Sold", "Total Revenue"],
-    ...analytics.topSellingProducts.map((item) => [
+  const ws = XLSX.utils.aoa_to_sheet([]);
+
+  // Add title
+  XLSX.utils.sheet_add_aoa(ws, [["أفضل المنتجات مبيعاً"]], { origin: "A1" });
+  ws["A1"].s = titleStyle;
+
+  // Add headers
+  const headers = [["اسم المنتج", "الكمية المباعة", "إجمالي الإيرادات"]];
+  XLSX.utils.sheet_add_aoa(ws, headers, { origin: "A3" });
+
+  // Apply header styles
+  ws["A3"].s = headerStyle;
+  ws["B3"].s = headerStyle;
+  ws["C3"].s = headerStyle;
+
+  // Add data
+  if (analytics.topSellingProducts.length > 0) {
+    const productData = analytics.topSellingProducts.map((item) => [
       item.product.prod_name,
       item.totalQuantity,
-      `${item.totalRevenue.toFixed(2)}`,
-    ]),
-  ];
+      item.totalRevenue.toFixed(2),
+    ]);
 
-  if (analytics.topSellingProducts.length === 0) {
-    data.push(["No products data available", "", ""]);
+    XLSX.utils.sheet_add_aoa(ws, productData, { origin: "A4" });
+
+    // Apply data styles
+    for (let i = 0; i < productData.length; i++) {
+      const row = i + 4;
+      ws[`A${row}`].s = dataStyle;
+      ws[`B${row}`].s = { ...dataStyle, numFmt: "#,##0" };
+      ws[`C${row}`].s = numberStyle;
+    }
+  } else {
+    XLSX.utils.sheet_add_aoa(ws, [["لا توجد بيانات منتجات متاحة", "", ""]], {
+      origin: "A4",
+    });
+    ws["A4"].s = dataStyle;
   }
 
-  const ws = XLSX.utils.aoa_to_sheet(data);
-
   // Set column widths
-  ws["!cols"] = [{ width: 30 }, { width: 15 }, { width: 15 }];
+  ws["!cols"] = [{ width: 35 }, { width: 18 }, { width: 20 }];
 
-  XLSX.utils.book_append_sheet(wb, ws, "Top Products");
+  // Merge title cell
+  ws["!merges"] = [{ s: { c: 0, r: 0 }, e: { c: 2, r: 0 } }];
+
+  XLSX.utils.book_append_sheet(wb, ws, "أفضل المنتجات");
 }
 
 function addTopCustomersSheet(wb: XLSX.WorkBook, analytics: AnalyticsData) {
-  const data = [
-    ["Top Customers", "", ""],
-    ["", "", ""],
-    ["Customer Name", "Total Spent", "Purchase Count"],
-    ...analytics.topBuyingCustomers.map((item) => [
-      item.customer.cust_name,
-      `${item.totalSpent.toFixed(2)}`,
-      item.totalTransactions,
-    ]),
-  ];
+  const ws = XLSX.utils.aoa_to_sheet([]);
 
-  if (analytics.topBuyingCustomers.length === 0) {
-    data.push(["No customers data available", "", ""]);
+  // Add title
+  XLSX.utils.sheet_add_aoa(ws, [["أفضل العملاء"]], { origin: "A1" });
+  ws["A1"].s = titleStyle;
+
+  // Add headers
+  const headers = [["اسم العميل", "إجمالي المشتريات", "عدد الفواتير"]];
+  XLSX.utils.sheet_add_aoa(ws, headers, { origin: "A3" });
+  // Apply header styles
+  ws["A3"].s = headerStyle;
+  ws["B3"].s = headerStyle;
+  ws["C3"].s = headerStyle;
+
+  // Add data
+  if (analytics.topBuyingCustomers.length > 0) {
+    const customerData = analytics.topBuyingCustomers.map((item) => [
+      item.customer.cust_name,
+      item.totalSpent.toFixed(2),
+      item.totalTransactions,
+    ]);
+
+    XLSX.utils.sheet_add_aoa(ws, customerData, { origin: "A4" });
+
+    // Apply data styles
+    for (let i = 0; i < customerData.length; i++) {
+      const row = i + 4;
+      ws[`A${row}`].s = dataStyle;
+      ws[`B${row}`].s = numberStyle;
+      ws[`C${row}`].s = { ...dataStyle, numFmt: "#,##0" };
+    }
+  } else {
+    XLSX.utils.sheet_add_aoa(ws, [["لا توجد بيانات عملاء متاحة", "", ""]], {
+      origin: "A4",
+    });
+    ws["A4"].s = dataStyle;
   }
 
-  const ws = XLSX.utils.aoa_to_sheet(data);
-
   // Set column widths
-  ws["!cols"] = [{ width: 30 }, { width: 15 }, { width: 15 }];
+  ws["!cols"] = [{ width: 35 }, { width: 20 }, { width: 18 }];
 
-  XLSX.utils.book_append_sheet(wb, ws, "Top Customers");
+  // Merge title cell
+  ws["!merges"] = [{ s: { c: 0, r: 0 }, e: { c: 2, r: 0 } }];
+
+  XLSX.utils.book_append_sheet(wb, ws, "أفضل العملاء");
 }
 
 function addMonthlyBreakdownSheet(wb: XLSX.WorkBook, analytics: AnalyticsData) {
-  const data = [
-    ["Monthly Breakdown", "", "", ""],
-    ["", "", "", ""],
-    ["Month", "Earned", "Spent", "Profit"],
-  ];
+  const ws = XLSX.utils.aoa_to_sheet([]);
 
+  // Add title
+  XLSX.utils.sheet_add_aoa(ws, [["التفصيل الشهري"]], { origin: "A1" });
+  ws["A1"].s = titleStyle;
+
+  // Add headers
+  const headers = [["الشهر", "الأرباح", "المصروفات", "صافي الربح"]];
+  XLSX.utils.sheet_add_aoa(ws, headers, { origin: "A3" });
+
+  // Apply header styles
+  ws["A3"].s = headerStyle;
+  ws["B3"].s = headerStyle;
+  ws["C3"].s = headerStyle;
+  ws["D3"].s = headerStyle;
+
+  // Add data
   if (analytics.monthlyBreakdown.length > 0) {
-    data.push(
-      ...analytics.monthlyBreakdown.map((item) => [
-        item.month,
-        `${item.earned.toFixed(2)}`,
-        `${item.spent.toFixed(2)}`,
-        `${item.profit.toFixed(2)}`,
-      ])
+    const monthlyData = analytics.monthlyBreakdown.map((item) => [
+      item.month,
+      item.earned.toFixed(2),
+      item.spent.toFixed(2),
+      item.profit.toFixed(2),
+    ]);
+
+    XLSX.utils.sheet_add_aoa(ws, monthlyData, { origin: "A4" });
+
+    // Apply data styles
+    for (let i = 0; i < monthlyData.length; i++) {
+      const row = i + 4;
+      ws[`A${row}`].s = dataStyle;
+      ws[`B${row}`].s = numberStyle;
+      ws[`C${row}`].s = numberStyle;
+      ws[`D${row}`].s = numberStyle;
+    }
+
+    // Add totals row
+    const totalRow = monthlyData.length + 4;
+    const totalEarned = analytics.monthlyBreakdown.reduce(
+      (sum, item) => sum + item.earned,
+      0
     );
+    const totalSpent = analytics.monthlyBreakdown.reduce(
+      (sum, item) => sum + item.spent,
+      0
+    );
+    const totalProfit = analytics.monthlyBreakdown.reduce(
+      (sum, item) => sum + item.profit,
+      0
+    );
+
+    XLSX.utils.sheet_add_aoa(
+      ws,
+      [
+        [
+          "الإجمالي",
+          totalEarned.toFixed(2),
+          totalSpent.toFixed(2),
+          totalProfit.toFixed(2),
+        ],
+      ],
+      { origin: `A${totalRow}` }
+    );
+
+    // Style totals row
+    ws[`A${totalRow}`].s = {
+      ...headerStyle,
+      fill: { fgColor: { rgb: "E7E6E6" } },
+    };
+    ws[`B${totalRow}`].s = {
+      ...numberStyle,
+      font: { bold: true },
+      fill: { fgColor: { rgb: "E7E6E6" } },
+    };
+    ws[`C${totalRow}`].s = {
+      ...numberStyle,
+      font: { bold: true },
+      fill: { fgColor: { rgb: "E7E6E6" } },
+    };
+    ws[`D${totalRow}`].s = {
+      ...numberStyle,
+      font: { bold: true },
+      fill: { fgColor: { rgb: "E7E6E6" } },
+    };
   } else {
-    data.push(["No monthly data available", "", "", ""]);
+    XLSX.utils.sheet_add_aoa(ws, [["لا توجد بيانات شهرية متاحة", "", "", ""]], {
+      origin: "A4",
+    });
+    ws["A4"].s = dataStyle;
   }
 
-  const ws = XLSX.utils.aoa_to_sheet(data);
-
   // Set column widths
-  ws["!cols"] = [{ width: 20 }, { width: 15 }, { width: 15 }, { width: 15 }];
+  ws["!cols"] = [{ width: 25 }, { width: 18 }, { width: 18 }, { width: 18 }];
 
-  XLSX.utils.book_append_sheet(wb, ws, "Monthly Breakdown");
+  // Merge title cell
+  ws["!merges"] = [{ s: { c: 0, r: 0 }, e: { c: 3, r: 0 } }];
+
+  XLSX.utils.book_append_sheet(wb, ws, "التفصيل الشهري");
 }

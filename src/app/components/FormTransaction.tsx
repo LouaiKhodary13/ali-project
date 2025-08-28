@@ -1,13 +1,13 @@
-"use client";
-import { Product, Transaction, BillProduct } from "@/app/types";
-import { useState, useEffect } from "react";
-import { ar } from "../lang/ar";
+'use client';
+import { Product, Transaction, BillProduct } from '@/app/types';
+import { useState, useEffect } from 'react';
+import { ar } from '../lang/ar';
 
 interface FormTransactionProps {
   products: Product[];
   initial: Partial<Transaction>;
   isEditing?: boolean;
-  onSubmit: (data: Omit<Transaction, "tran_id">) => void;
+  onSubmit: (data: Omit<Transaction, 'tran_id'>) => void;
   onCancel: () => void;
 }
 
@@ -18,9 +18,9 @@ export function FormTransaction({
   onSubmit,
   onCancel,
 }: FormTransactionProps) {
-  const [source, setSource] = useState(initial.tran_source || "");
+  const [source, setSource] = useState(initial.tran_source || '');
   const [date, setDate] = useState(
-    initial.tran_date || new Date().toISOString().split("T")[0]
+    initial.tran_date || new Date().toISOString().split('T')[0]
   );
   const [selectedProducts, setSelectedProducts] = useState<BillProduct[]>(
     initial.prod_items || []
@@ -33,18 +33,18 @@ export function FormTransaction({
   );
 
   function toDateInputValue(date?: string | Date) {
-    if (!date) return "";
-    if (typeof date === "string") {
+    if (!date) return '';
+    if (typeof date === 'string') {
       return date.slice(0, 10);
     }
     if (date instanceof Date) {
       return date.toISOString().slice(0, 10);
     }
-    return "";
+    return '';
   }
 
   useEffect(() => {
-    setSource(initial.tran_source || "");
+    setSource(initial.tran_source || '');
     setDate(toDateInputValue(initial.tran_date));
     setSelectedProducts(initial.prod_items || []);
   }, [initial]);
@@ -103,18 +103,18 @@ export function FormTransaction({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!source.trim()) return alert("Source is required");
+    if (!source.trim()) return alert('Source is required');
     if (selectedProducts.length === 0)
-      return alert("At least one product required");
-    if (cost <= 0) return alert("Cost must be greater than 0");
-    if (!date) return alert("Date is required");
+      return alert('At least one product required');
+    if (cost <= 0) return alert('Cost must be greater than 0');
+    if (!date) return alert('Date is required');
 
     // Validate all products have valid data
     for (const item of selectedProducts) {
-      if (!item.prod_id) return alert("All products must be selected");
+      if (!item.prod_id) return alert('All products must be selected');
       if (item.quantity <= 0)
-        return alert("All quantities must be greater than 0");
-      if (item.unit_price < 0) return alert("Unit prices cannot be negative");
+        return alert('All quantities must be greater than 0');
+      if (item.unit_price < 0) return alert('Unit prices cannot be negative');
     }
 
     onSubmit({
@@ -126,46 +126,48 @@ export function FormTransaction({
 
     // Clear form if not editing
     if (!isEditing) {
-      setSource("");
-      setDate("");
+      setSource('');
+      setDate('');
       setSelectedProducts([]);
     }
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4 p-4 border rounded">
+    <form onSubmit={handleSubmit} className='space-y-4 p-4 border rounded'>
       <div>
-        <label className="block text-sm font-bold mb-2">
+        <label className='block text-sm font-bold mb-2'>
           {ar.transaction.Source}
         </label>
         <input
-          type="text"
+          type='text'
           value={source}
           onChange={(e) => setSource(e.target.value)}
-          className="w-full p-2 border rounded"
+          className='w-full p-2 border rounded'
           placeholder={ar.transaction.Source}
           required
         />
       </div>
 
       <div>
-        <label className="block text-sm font-bold mb-2">
+        <label className='block text-sm font-bold mb-2'>
           {ar.strings.Products}
         </label>
-        <div className="border rounded p-2">
-          <div className="mb-2">
+        <div className='border rounded p-2'>
+          <div className='mb-2'>
             <select
               onChange={(e) => {
                 if (e.target.value) {
                   addProduct(e.target.value);
-                  e.target.value = "";
+                  e.target.value = '';
                 }
               }}
-              className="w-full p-2 border rounded"
-            >
-              <option value="">اختر منتج لإضافته</option>
+              className='w-full p-2 border rounded'>
+              <option value=''>اختر منتج لإضافته</option>
               {products.map((p) => (
-                <option key={p.prod_id} value={p.prod_id}>
+                <option
+                  key={p.prod_id}
+                  value={p.prod_id}
+                  className=' flex flex-col'>
                   {p.prod_name} - {p.prod_price} (متاح: {p.prod_quant})
                 </option>
               ))}
@@ -173,8 +175,8 @@ export function FormTransaction({
           </div>
 
           {selectedProducts.length > 0 && (
-            <div className="space-y-2">
-              <h4 className="font-bold">المنتجات المحددة:</h4>
+            <div className='border-t pt-2 w-full max-h-96 overflow-y-auto'>
+              <h4 className='font-bold mb-2'>المنتجات المحددة:</h4>
               {selectedProducts.map((item) => {
                 const product = products.find(
                   (p) => p.prod_id === item.prod_id
@@ -182,41 +184,58 @@ export function FormTransaction({
                 return (
                   <div
                     key={item.prod_id}
-                    className="flex items-center gap-2 p-2 bg-gray-50 rounded"
-                  >
-                    <span className="flex-1">
-                      {product?.prod_name || "منتج محذوف"}
-                      <span className="text-sm text-gray-500 ml-2">
+                    className='flex flex-col sm:flex-row sm:items-center sm:gap-4 p-2 bg-gray-50 rounded border border-gray-200 w-full mb-2'>
+                    {/* Product Name */}
+                    <span className='flex-1 min-w-[120px]'>
+                      {product?.prod_name || 'منتج محذوف'}
+                      <span className='text-sm text-white ml-2'>
                         (متاح: {product?.prod_quant || 0})
                       </span>
                     </span>
-                    <input
-                      type="number"
-                      value={item.quantity}
-                      onChange={(e) =>
-                        updateProductQuantity(
-                          item.prod_id,
-                          Number(e.target.value)
-                        )
-                      }
-                      className="w-20 p-1 border rounded"
-                      min="1"
-                      placeholder="الكمية"
-                    />
-                    <input
-                      type="number"
-                      value={item.unit_price}
-                      onChange={(e) =>
-                        updateProductPrice(item.prod_id, Number(e.target.value))
-                      }
-                      className="w-24 p-1 border rounded"
-                      min="0"
-                      step="0.01"
-                      placeholder="السعر"
-                    />
-                    <span className="w-20 text-right">
-                      {(item.quantity * item.unit_price).toFixed(2)}
-                    </span>
+
+                    {/* Quantity */}
+                    <div className='flex items-center gap-1 w-full sm:w-auto mt-2 sm:mt-0'>
+                      <input
+                        type='number'
+                        value={item.quantity}
+                        onChange={(e) =>
+                          updateProductQuantity(
+                            item.prod_id,
+                            Number(e.target.value)
+                          )
+                        }
+                        className='p-1 border rounded w-full sm:w-20'
+                        min='1'
+                        placeholder='الكمية'
+                      />
+                      <span className='text-sm text-white'>الكمية</span>
+                    </div>
+
+                    {/* Unit Price */}
+                    <div className='flex items-center gap-1 w-full sm:w-auto mt-2 sm:mt-0'>
+                      <input
+                        type='number'
+                        value={item.unit_price}
+                        onChange={(e) =>
+                          updateProductPrice(
+                            item.prod_id,
+                            Number(e.target.value)
+                          )
+                        }
+                        className='p-1 border rounded w-full sm:w-24'
+                        min='0'
+                        step='0.01'
+                        placeholder='السعر'
+                      />
+                      <span className='text-sm text-white'>السعر</span>
+                    </div>
+                    <div className='flex items-center gap-1 w-full sm:w-auto mt-2 sm:mt-0'>
+                      <span className='text-sm text-white'>الكلفة</span>
+                      <span className='w-full sm:w-20 text-right flex-shrink-0 mt-2 sm:mt-0'>
+                        {(item.quantity * item.unit_price).toFixed(2)}
+                      </span>
+                    </div>
+                    {/* Total */}
                   </div>
                 );
               })}
@@ -226,39 +245,37 @@ export function FormTransaction({
       </div>
 
       <div>
-        <label className="block text-sm font-bold mb-2">
+        <label className='block text-sm font-bold mb-2'>
           {ar.transaction.Cost}
         </label>
-        <div className="w-full p-2 border rounded bg-gray-100">
+        <div className='w-full p-2 border rounded bg-gray-100'>
           {cost.toFixed(2)}
         </div>
       </div>
 
       <div>
-        <label className="block text-sm font-bold mb-2">
+        <label className='block text-sm font-bold mb-2'>
           {ar.strings.Date}
         </label>
         <input
-          type="date"
+          type='date'
           value={date}
           onChange={(e) => setDate(e.target.value)}
-          className="w-full p-2 border rounded"
+          className='w-full p-2 border rounded'
           required
         />
       </div>
 
-      <div className="flex gap-2 font-bold">
+      <div className='flex gap-2 font-bold'>
         <button
-          type="submit"
-          className="px-3 py-1 bg-blue-600 text-white rounded"
-        >
+          type='submit'
+          className='px-3 py-1 bg-blue-600 text-white rounded'>
           {ar.buttons.Save}
         </button>
         <button
-          type="button"
+          type='button'
           onClick={onCancel}
-          className="px-3 py-1 border rounded"
-        >
+          className='px-3 py-1 border rounded'>
           {ar.buttons.Cancel}
         </button>
       </div>

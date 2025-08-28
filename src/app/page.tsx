@@ -1,27 +1,27 @@
 // src/app/page.tsx
-"use client";
-import { BillsTable } from "@/app/components/BillsTable";
-import { CustomersTable } from "@/app/components/CustomersTable";
-import { CustomerBillsModal } from "@/app/components/CustomerBillsModal";
-import { FormCustomer } from "@/app/components/FormCustomer";
-import { TransactionsTable } from "@/app/components/TransactionsTable";
-import { Bill, Customer, Product, Transaction } from "@/app/types";
-import { useState } from "react";
-import { AnalyticsExport } from "./components/AnalyticsExport";
-import { FormBill } from "./components/FormBill";
-import { FormProduct } from "./components/FormProduct";
-import { FormTransaction } from "./components/FormTransaction";
-import { ProductsTable } from "./components/ProductsTable ";
-import { useBills } from "./components/hooks/useBills";
-import { useCustomers } from "./components/hooks/useCustomers";
-import { useProducts } from "./components/hooks/useProducts";
-import { useTransactions } from "./components/hooks/useTransactions";
-import { ar } from "@/app/lang/ar";
+'use client';
+import { BillsTable } from '@/app/components/BillsTable';
+import { CustomersTable } from '@/app/components/CustomersTable';
+import { CustomerBillsModal } from '@/app/components/CustomerBillsModal';
+import { FormCustomer } from '@/app/components/FormCustomer';
+import { TransactionsTable } from '@/app/components/TransactionsTable';
+import { Bill, Customer, Product, Transaction } from '@/app/types';
+import { useState } from 'react';
+import { AnalyticsExport } from './components/AnalyticsExport';
+import { FormBill } from './components/FormBill';
+import { FormProduct } from './components/FormProduct';
+import { FormTransaction } from './components/FormTransaction';
+import { ProductsTable } from './components/ProductsTable ';
+import { useBills } from './components/hooks/useBills';
+import { useCustomers } from './components/hooks/useCustomers';
+import { useProducts } from './components/hooks/useProducts';
+import { useTransactions } from './components/hooks/useTransactions';
+import { ar } from '@/app/lang/ar';
 
 export default function Home() {
   const [activeTab, setActiveTab] = useState<
-    "customers" | "bills" | "transactions" | "products" | "analytics"
-  >("customers");
+    'customers' | 'bills' | 'transactions' | 'products' | 'analytics'
+  >('customers');
 
   // Customers
   const { customers, addCustomer, updateCustomer, deleteCustomer } =
@@ -73,22 +73,22 @@ export default function Home() {
   };
 
   // Bill handlers with inventory management
-  const handleCreateBill = async (billData: Omit<Bill, "bill_id">) => {
+  const handleCreateBill = async (billData: Omit<Bill, 'bill_id'>) => {
     try {
       // Create the bill
       await addBill(billData);
 
       // Update product quantities (subtract from inventory)
-      await updateProductQuantities(billData.prod_items, "subtract");
+      await updateProductQuantities(billData.prod_items, 'subtract');
 
       setShowBillForm(false);
     } catch (error) {
-      console.error("Failed to create bill:", error);
+      console.error('Failed to create bill:', error);
       alert(ar.messages.Failed_to_create_bill);
     }
   };
 
-  const handleUpdateBill = async (billData: Omit<Bill, "bill_id">) => {
+  const handleUpdateBill = async (billData: Omit<Bill, 'bill_id'>) => {
     if (!editingBill) return;
 
     try {
@@ -131,10 +131,10 @@ export default function Home() {
 
           if (netChange > 0) {
             // Net increase means we need to add back to inventory
-            await updateProductQuantities([changeItem], "add");
+            await updateProductQuantities([changeItem], 'add');
           } else if (netChange < 0) {
             // Net decrease means we need to subtract from inventory
-            await updateProductQuantities([changeItem], "subtract");
+            await updateProductQuantities([changeItem], 'subtract');
           }
         }
       });
@@ -142,7 +142,7 @@ export default function Home() {
       setEditingBill(null);
       setShowBillForm(false);
     } catch (error) {
-      console.error("Failed to update bill:", error);
+      console.error('Failed to update bill:', error);
       alert(ar.messages.Failed_to_update_bill);
     }
   };
@@ -158,34 +158,34 @@ export default function Home() {
 
       // Restore product quantities when bill is deleted
       if (billToDelete.prod_items) {
-        await updateProductQuantities(billToDelete.prod_items, "add");
+        await updateProductQuantities(billToDelete.prod_items, 'add');
       }
     } catch (error) {
-      console.error("Failed to delete bill:", error);
+      console.error('Failed to delete bill:', error);
       alert(ar.messages.Failed_to_delete_bill);
     }
   };
 
   // Transaction handlers with inventory management
   const handleCreateTransaction = async (
-    transactionData: Omit<Transaction, "tran_id">
+    transactionData: Omit<Transaction, 'tran_id'>
   ) => {
     try {
       // Create the transaction
       await addTransaction(transactionData);
 
       // Update product quantities (add to inventory for purchases)
-      await updateProductQuantities(transactionData.prod_items, "add");
+      await updateProductQuantities(transactionData.prod_items, 'add');
 
       setShowTransactionForm(false);
     } catch (error) {
-      console.error("Failed to create transaction:", error);
+      console.error('Failed to create transaction:', error);
       alert(ar.messages.Failed_to_create_transaction);
     }
   };
 
   const handleUpdateTransaction = async (
-    transactionData: Omit<Transaction, "tran_id">
+    transactionData: Omit<Transaction, 'tran_id'>
   ) => {
     if (!editingTransaction) return;
 
@@ -229,10 +229,10 @@ export default function Home() {
 
           if (netChange > 0) {
             // Net increase means we need to add to inventory
-            await updateProductQuantities([changeItem], "add");
+            await updateProductQuantities([changeItem], 'add');
           } else if (netChange < 0) {
             // Net decrease means we need to subtract from inventory
-            await updateProductQuantities([changeItem], "subtract");
+            await updateProductQuantities([changeItem], 'subtract');
           }
         }
       });
@@ -240,7 +240,7 @@ export default function Home() {
       setEditingTransaction(null);
       setShowTransactionForm(false);
     } catch (error) {
-      console.error("Failed to update transaction:", error);
+      console.error('Failed to update transaction:', error);
       alert(ar.messages.Failed_to_update_transaction);
     }
   };
@@ -260,75 +260,21 @@ export default function Home() {
       if (transactionToDelete.prod_items) {
         await updateProductQuantities(
           transactionToDelete.prod_items,
-          "subtract"
+          'subtract'
         );
       }
     } catch (error) {
-      console.error("Failed to delete transaction:", error);
+      console.error('Failed to delete transaction:', error);
       alert(ar.messages.Failed_to_delete_transaction);
     }
   };
 
   return (
-    <div className="p-6 max-w-5xl mx-auto">
-      {/* Tabs Nav */}
-      <div className="flex border-b mb-4 justify-between">
-        <button
-          onClick={() => setActiveTab("customers")}
-          className={`px-2 py-2 ${
-            activeTab === "customers"
-              ? "border-b-2 border-blue-600 font-bold"
-              : "text-gray-900"
-          }`}
-        >
-          {ar.tabs.customers}
-        </button>
-        <button
-          onClick={() => setActiveTab("bills")}
-          className={`px-4 py-2 ${
-            activeTab === "bills"
-              ? "border-b-2 border-black font-bold"
-              : "text-gray-900"
-          }`}
-        >
-          {ar.tabs.bills}
-        </button>
-        <button
-          onClick={() => setActiveTab("transactions")}
-          className={`px-4 py-2 ${
-            activeTab === "transactions"
-              ? "border-b-2 border-black font-bold"
-              : "text-gray-900"
-          }`}
-        >
-          {ar.tabs.transactions}
-        </button>
-        <button
-          onClick={() => setActiveTab("products")}
-          className={`px-4 py-2 ${
-            activeTab === "products"
-              ? "border-b-2 border-black font-bold"
-              : "text-gray-900"
-          }`}
-        >
-          {ar.tabs.products}
-        </button>
-        <button
-          onClick={() => setActiveTab("analytics")}
-          className={`px-4 py-2 ${
-            activeTab === "analytics"
-              ? "border-b-2 border-black font-bold"
-              : "text-gray-900"
-          }`}
-        >
-          {ar.tabs.analytics}
-        </button>
-      </div>
-
+    <div className='p-6 max-w-5xl mx-auto'>
       {/* Tab Content */}
-      {activeTab === "customers" && (
+      {/* {activeTab === 'customers' && (
         <>
-          <h1 className="text-2xl font-bold mb-4">
+          <h1 className='text-2xl font-bold mb-4'>
             {ar.titles.Customer_Management}
           </h1>
 
@@ -353,9 +299,8 @@ export default function Home() {
 
           {!showCustomerForm && (
             <button
-              className="mb-4 px-4 py-2 bg-blue-600 text-white rounded"
-              onClick={() => setShowCustomerForm(true)}
-            >
+              className='mb-4 px-4 py-2 bg-blue-600 text-white rounded'
+              onClick={() => setShowCustomerForm(true)}>
               {ar.buttons.Add_Customer}
             </button>
           )}
@@ -370,11 +315,11 @@ export default function Home() {
             onViewBills={(customerId) => handleViewCustomerBills(customerId)}
           />
         </>
-      )}
+      )} */}
 
-      {activeTab === "bills" && (
+      {/* {activeTab === 'bills' && (
         <>
-          <h1 className="text-2xl font-bold mb-4">
+          <h1 className='text-2xl font-bold mb-4'>
             {ar.titles.Bills_Management}
           </h1>
 
@@ -400,9 +345,8 @@ export default function Home() {
 
           {!showBillForm && (
             <button
-              className="mb-4 px-4 py-2 bg-blue-600 text-white rounded"
-              onClick={() => setShowBillForm(true)}
-            >
+              className='mb-4 px-4 py-2 bg-blue-600 text-white rounded'
+              onClick={() => setShowBillForm(true)}>
               {ar.buttons.Add_Bill}
             </button>
           )}
@@ -418,11 +362,11 @@ export default function Home() {
             onDelete={handleDeleteBill}
           />
         </>
-      )}
+      )} */}
 
-      {activeTab === "transactions" && (
+      {/* {activeTab === 'transactions' && (
         <>
-          <h1 className="text-2xl font-bold mb-4">
+          <h1 className='text-2xl font-bold mb-4'>
             {ar.titles.Transactions_Management}
           </h1>
 
@@ -447,9 +391,8 @@ export default function Home() {
 
           {!showTransactionForm && (
             <button
-              className="mb-4 px-4 py-2 bg-blue-600 text-white rounded"
-              onClick={() => setShowTransactionForm(true)}
-            >
+              className='mb-4 px-4 py-2 bg-blue-600 text-white rounded'
+              onClick={() => setShowTransactionForm(true)}>
               {ar.buttons.Add_Transaction}
             </button>
           )}
@@ -464,11 +407,11 @@ export default function Home() {
             onDelete={handleDeleteTransaction}
           />
         </>
-      )}
+      )} */}
 
-      {activeTab === "products" && (
+      {/* {activeTab === 'products' && (
         <>
-          <h1 className="text-2xl font-bold mb-4">
+          <h1 className='text-2xl font-bold mb-4'>
             {ar.titles.Products_Management}
           </h1>
 
@@ -493,9 +436,8 @@ export default function Home() {
 
           {!showProductForm && (
             <button
-              className="mb-4 px-4 py-2 bg-blue-600 text-white rounded"
-              onClick={() => setShowProductForm(true)}
-            >
+              className='mb-4 px-4 py-2 bg-blue-600 text-white rounded'
+              onClick={() => setShowProductForm(true)}>
               {ar.buttons.Add_Product}
             </button>
           )}
@@ -509,11 +451,11 @@ export default function Home() {
             onDelete={(id) => deleteProduct(id)}
           />
         </>
-      )}
+      )} */}
 
-      {activeTab === "analytics" && (
+      {activeTab === 'analytics' && (
         <>
-          <h1 className="text-2xl font-bold mb-4">
+          <h1 className='text-2xl font-bold mb-4'>
             {ar.titles.Analytics_Reports}
           </h1>
           <AnalyticsExport
@@ -534,6 +476,262 @@ export default function Home() {
           products={products}
         />
       )}
+
+      <div className='md:flex w-full '>
+        <ul className='flex-column space-y space-y-4 text-sm font-medium text-gray-500 dark:text-gray-400 md:me-4 mb-4 md:mb-0'>
+          <li>
+            <button
+              onClick={() => setActiveTab('customers')}
+              className={`inline-flex items-center px-4 py-3 text-white  rounded-lg active w-full bg-gray-800  ${
+                activeTab === 'customers'
+                  ? ' bg-blue-700  font-bold'
+                  : 'text-gray-900'
+              }`}>
+              {ar.tabs.customers}
+            </button>
+          </li>{' '}
+          <li>
+            <button
+              onClick={() => setActiveTab('products')}
+              className={`inline-flex items-center px-4 py-3 rounded-lg hover:text-gray-900 bg-gray-50 hover:bg-gray-100 w-full dark:bg-gray-800 dark:hover:bg-gray-700 dark:hover:text-white ${
+                activeTab === 'products'
+                  ? 'border-b-2 border-black font-bold'
+                  : 'text-white '
+              }`}>
+              {ar.tabs.products}
+            </button>
+          </li>
+          <li>
+            <button
+              onClick={() => setActiveTab('bills')}
+              className={`inline-flex items-center px-4 py-3 rounded-lg hover:text-gray-900 bg-gray-50 hover:bg-gray-100 w-full dark:bg-gray-800 dark:hover:bg-gray-700 dark:hover:text-white ${
+                activeTab === 'bills'
+                  ? ' bg-blue-700 font-bold text-white'
+                  : 'text-white '
+              }`}>
+              {ar.tabs.bills}
+            </button>
+          </li>
+          <li>
+            <button
+              onClick={() => setActiveTab('transactions')}
+              className={`inline-flex items-center px-4 py-3 rounded-lg hover:text-gray-900 bg-gray-50 hover:bg-gray-100 w-full dark:bg-gray-800 dark:hover:bg-gray-700 dark:hover:text-white ${
+                activeTab === 'transactions'
+                  ? 'bg-blue-700 font-bold text-white'
+                  : 'text-white '
+              }`}>
+              {ar.tabs.transactions}
+            </button>
+          </li>{' '}
+          <li>
+            <button
+              onClick={() => setActiveTab('analytics')}
+              className={`inline-flex items-center px-4 py-3 rounded-lg hover:text-gray-900 bg-gray-50 hover:bg-gray-100 w-full dark:bg-gray-800 dark:hover:bg-gray-700 dark:hover:text-white ${
+                activeTab === 'analytics'
+                  ? 'bg-blue-700 font-bold text-white'
+                  : 'text-white '
+              }`}>
+              {ar.tabs.analytics}
+            </button>
+          </li>
+        </ul>
+        <div className='p-5 bg-gray-50 text-medium text-gray-500 dark:text-gray-400 dark:bg-gray-800 rounded-lg w-full'>
+          {/* Tabs nav */}
+          {activeTab === 'customers' && (
+            <>
+              <h3 className='text-lg font-bold text-gray-900 dark:text-white mb-2'>
+                {ar.titles.Customer_Management}
+              </h3>
+              {showCustomerForm && (
+                <FormCustomer
+                  initial={editingCustomer || {}}
+                  onSubmit={(data) => {
+                    if (editingCustomer) {
+                      updateCustomer(editingCustomer.cust_id, data);
+                      setEditingCustomer(null);
+                    } else {
+                      addCustomer(data);
+                    }
+                    setShowCustomerForm(false);
+                  }}
+                  onCancel={() => {
+                    setEditingCustomer(null);
+                    setShowCustomerForm(false);
+                  }}
+                />
+              )}
+              {!showCustomerForm && (
+                <button
+                  className='mb-4 px-4 py-2 bg-blue-600 text-white rounded'
+                  onClick={() => setShowCustomerForm(true)}>
+                  {ar.buttons.Add_Customer}
+                </button>
+              )}
+              <p className='mb-2'>
+                <CustomersTable
+                  customers={customers}
+                  onEdit={(c) => {
+                    setEditingCustomer(c);
+                    setShowCustomerForm(true);
+                  }}
+                  onDelete={(id) => deleteCustomer(id)}
+                  onViewBills={(customerId) =>
+                    handleViewCustomerBills(customerId)
+                  }
+                />
+              </p>
+            </>
+          )}
+          {activeTab === 'products' && (
+            <>
+              <h3 className='text-lg font-bold text-gray-900 dark:text-white mb-2'>
+                {ar.titles.Products_Management}
+              </h3>
+              {showProductForm && (
+                <FormProduct
+                  initial={editingProduct || {}}
+                  onSubmit={(data) => {
+                    if (editingProduct) {
+                      updateProduct(editingProduct.prod_id, data);
+                      setEditingProduct(null);
+                    } else {
+                      addProduct(data);
+                    }
+                    setShowProductForm(false);
+                  }}
+                  onCancel={() => {
+                    setEditingProduct(null);
+                    setShowProductForm(false);
+                  }}
+                />
+              )}
+
+              {!showProductForm && (
+                <button
+                  className='mb-4 px-4 py-2 bg-blue-600 text-white rounded'
+                  onClick={() => setShowProductForm(true)}>
+                  {ar.buttons.Add_Product}
+                </button>
+              )}
+              <p className='mb-2'>
+                <ProductsTable
+                  products={products}
+                  onEdit={(p) => {
+                    setEditingProduct(p);
+                    setShowProductForm(true);
+                  }}
+                  onDelete={(id) => deleteProduct(id)}
+                />
+              </p>
+            </>
+          )}
+          {activeTab === 'bills' && (
+            <>
+              <h3 className='text-lg font-bold text-gray-900 dark:text-white mb-2'>
+                {ar.titles.Bills_Management}
+              </h3>
+              {showBillForm && (
+                <FormBill
+                  customers={customers}
+                  products={products}
+                  initial={editingBill || {}}
+                  isEditing={!!editingBill}
+                  onSubmit={async (data) => {
+                    if (editingBill) {
+                      await handleUpdateBill(data);
+                    } else {
+                      await handleCreateBill(data);
+                    }
+                  }}
+                  onCancel={() => {
+                    setEditingBill(null);
+                    setShowBillForm(false);
+                  }}
+                />
+              )}
+
+              {!showBillForm && (
+                <button
+                  className='mb-4 px-4 py-2 bg-blue-600 text-white rounded'
+                  onClick={() => setShowBillForm(true)}>
+                  {ar.buttons.Add_Bill}
+                </button>
+              )}
+              <p className='mb-2'>
+                <BillsTable
+                  bills={bills}
+                  customers={customers}
+                  products={products}
+                  onEdit={(b) => {
+                    setEditingBill(b);
+                    setShowBillForm(true);
+                  }}
+                  onDelete={handleDeleteBill}
+                />
+              </p>
+            </>
+          )}{' '}
+          {activeTab === 'transactions' && (
+            <>
+              <h3 className='text-lg font-bold text-gray-900 dark:text-white mb-2'>
+                {ar.titles.Transactions_Management}
+              </h3>
+              {showTransactionForm && (
+                <FormTransaction
+                  products={products}
+                  initial={editingTransaction || {}}
+                  isEditing={!!editingTransaction}
+                  onSubmit={async (data) => {
+                    if (editingTransaction) {
+                      await handleUpdateTransaction(data);
+                    } else {
+                      await handleCreateTransaction(data);
+                    }
+                  }}
+                  onCancel={() => {
+                    setEditingTransaction(null);
+                    setShowTransactionForm(false);
+                  }}
+                />
+              )}
+
+              {!showTransactionForm && (
+                <button
+                  className='mb-4 px-4 py-2 bg-blue-600 text-white rounded'
+                  onClick={() => setShowTransactionForm(true)}>
+                  {ar.buttons.Add_Transaction}
+                </button>
+              )}
+              <p className='mb-2'>
+                <TransactionsTable
+                  products={products}
+                  transactions={transactions}
+                  onEdit={(t) => {
+                    setEditingTransaction(t);
+                    setShowTransactionForm(true);
+                  }}
+                  onDelete={handleDeleteTransaction}
+                />
+              </p>
+            </>
+          )}
+          {activeTab === 'analytics' && (
+            <>
+              <h3 className='text-lg font-bold text-gray-900 dark:text-white mb-2'>
+                {ar.titles.Analytics_Reports}
+              </h3>
+              <p className='mb-2'>
+                <AnalyticsExport
+                  bills={bills}
+                  transactions={transactions}
+                  customers={customers}
+                  products={products}
+                />
+              </p>
+            </>
+          )}
+        </div>
+      </div>
     </div>
   );
 }

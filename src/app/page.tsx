@@ -1,10 +1,11 @@
 // src/app/page.tsx
 "use client";
 import { BillsTable } from "@/app/components/BillsTable";
-import { CustomersTable } from "@/app/components/CustomersTable";
 import { CustomerBillsModal } from "@/app/components/CustomerBillsModal";
+import { CustomersTable } from "@/app/components/CustomersTable";
 import { FormCustomer } from "@/app/components/FormCustomer";
 import { TransactionsTable } from "@/app/components/TransactionsTable";
+import { ar } from "@/app/lang/ar";
 import { Bill, Customer, Product, Transaction } from "@/app/types";
 import { useState } from "react";
 import { AnalyticsExport } from "./components/AnalyticsExport";
@@ -16,12 +17,15 @@ import { useBills } from "./components/hooks/useBills";
 import { useCustomers } from "./components/hooks/useCustomers";
 import { useProducts } from "./components/hooks/useProducts";
 import { useTransactions } from "./components/hooks/useTransactions";
-import { ar } from "@/app/lang/ar";
 
 export default function Home() {
+  // Change default tab to "bills"
   const [activeTab, setActiveTab] = useState<
     "customers" | "bills" | "transactions" | "products" | "analytics"
-  >("customers");
+  >("bills");
+
+  // Add this state at the top with other states:
+  const [billsRefreshKey, setBillsRefreshKey] = useState(0);
 
   // Customers
   const { customers, addCustomer, updateCustomer, deleteCustomer } =
@@ -36,7 +40,7 @@ export default function Home() {
   const [showCustomerBillsModal, setShowCustomerBillsModal] = useState(false);
 
   // Bills
-  const { bills, addBill, updateBill, deleteBill } = useBills();
+  const { bills, addBill, updateBill, deleteBill, refreshBills } = useBills();
   const [editingBill, setEditingBill] = useState<Bill | null>(null);
   const [showBillForm, setShowBillForm] = useState(false);
 
@@ -269,109 +273,139 @@ export default function Home() {
     }
   };
 
+  // Replace handleBillsUpdated with this EXACT implementation:
+  const handleBillsUpdated = async () => {
+    try {
+      console.log("=== Starting bills update process ===");
+
+      // STEP 1: Refresh bills from IndexedDB
+      console.log("Step 1: Refreshing bills from database...");
+      await refreshBills();
+
+      // STEP 2: Small delay to ensure React processes the update
+      console.log("Step 2: Waiting for React state update...");
+      await new Promise((resolve) => setTimeout(resolve, 150));
+
+      // STEP 3: Force re-render
+      console.log("Step 3: Forcing re-render...");
+      setBillsRefreshKey((prev) => prev + 1);
+
+      // STEP 4: Another small delay before closing
+      await new Promise((resolve) => setTimeout(resolve, 100));
+
+      // STEP 5: Show success and close
+      console.log("Step 4: Success! Closing modal...");
+      alert("تم إضافة الدفعة بنجاح");
+
+      setShowCustomerBillsModal(false);
+      setSelectedCustomer(null);
+
+      console.log("=== Bills update complete ===");
+    } catch (error) {
+      console.error("Error in handleBillsUpdated:", error);
+      alert("حدث خطأ أثناء تحديث الفواتير");
+    }
+  };
+
   return (
     <div className="p-6 max-w-5xl mx-auto">
       {/* Tabs Nav */}
-      <div className="flex border-b mb-4 justify-between">
-        <button
-          onClick={() => setActiveTab("customers")}
-          className={`px-2 py-2 ${
-            activeTab === "customers"
-              ? "border-b-2 border-blue-600 font-bold"
-              : "text-gray-900"
-          }`}
-        >
-          {ar.tabs.customers}
-        </button>
-        <button
-          onClick={() => setActiveTab("bills")}
-          className={`px-4 py-2 ${
-            activeTab === "bills"
-              ? "border-b-2 border-black font-bold"
-              : "text-gray-900"
-          }`}
-        >
-          {ar.tabs.bills}
-        </button>
-        <button
-          onClick={() => setActiveTab("transactions")}
-          className={`px-4 py-2 ${
-            activeTab === "transactions"
-              ? "border-b-2 border-black font-bold"
-              : "text-gray-900"
-          }`}
-        >
-          {ar.tabs.transactions}
-        </button>
-        <button
-          onClick={() => setActiveTab("products")}
-          className={`px-4 py-2 ${
-            activeTab === "products"
-              ? "border-b-2 border-black font-bold"
-              : "text-gray-900"
-          }`}
-        >
-          {ar.tabs.products}
-        </button>
-        <button
-          onClick={() => setActiveTab("analytics")}
-          className={`px-4 py-2 ${
-            activeTab === "analytics"
-              ? "border-b-2 border-black font-bold"
-              : "text-gray-900"
-          }`}
-        >
-          {ar.tabs.analytics}
-        </button>
+      <div className="mb-6">
+        {/* Mobile: Dropdown */}
+        <div className="block sm:hidden">
+          <select
+            value={activeTab}
+            onChange={(e) =>
+              setActiveTab(
+                e.target.value as
+                  | "customers"
+                  | "bills"
+                  | "transactions"
+                  | "products"
+                  | "analytics"
+              )
+            }
+            className="w-full px-4 py-3 bg-white border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+          >
+            <option value="bills">📄 {ar.tabs.bills}</option>
+            <option value="customers">👥 {ar.tabs.customers}</option>
+            <option value="transactions">💰 المدفوعات</option>
+            <option value="products">📦 {ar.tabs.products}</option>
+            <option value="analytics">📊 {ar.tabs.analytics}</option>
+          </select>
+        </div>
+
+        {/* Desktop: Tab buttons - Reorder to put Bills first */}
+        <div className="hidden sm:flex border-b-2 border-gray-200 bg-white rounded-lg shadow-sm overflow-hidden">
+          <button
+            onClick={() => setActiveTab("bills")}
+            className={`flex-1 px-4 lg:px-6 py-4 text-sm font-medium transition-all duration-200 ${
+              activeTab === "bills"
+                ? "bg-blue-600 text-white border-b-2 border-blue-600 shadow-md"
+                : "text-gray-600 hover:text-blue-600 hover:bg-blue-50"
+            }`}
+          >
+            <div className="flex items-center justify-center space-x-2">
+              <span>📄</span>
+              <span className="hidden md:inline">{ar.tabs.bills}</span>
+            </div>
+          </button>
+          <button
+            onClick={() => setActiveTab("customers")}
+            className={`flex-1 px-4 lg:px-6 py-4 text-sm font-medium transition-all duration-200 ${
+              activeTab === "customers"
+                ? "bg-blue-600 text-white border-b-2 border-blue-600 shadow-md"
+                : "text-gray-600 hover:text-blue-600 hover:bg-blue-50"
+            }`}
+          >
+            <div className="flex items-center justify-center space-x-2">
+              <span>👥</span>
+              <span className="hidden md:inline">{ar.tabs.customers}</span>
+            </div>
+          </button>
+          <button
+            onClick={() => setActiveTab("transactions")}
+            className={`flex-1 px-4 lg:px-6 py-4 text-sm font-medium transition-all duration-200 ${
+              activeTab === "transactions"
+                ? "bg-blue-600 text-white border-b-2 border-blue-600 shadow-md"
+                : "text-gray-600 hover:text-blue-600 hover:bg-blue-50"
+            }`}
+          >
+            <div className="flex items-center justify-center space-x-2">
+              <span>💰</span>
+              <span className="hidden md:inline">المدفوعات</span>
+            </div>
+          </button>
+          <button
+            onClick={() => setActiveTab("products")}
+            className={`flex-1 px-4 lg:px-6 py-4 text-sm font-medium transition-all duration-200 ${
+              activeTab === "products"
+                ? "bg-blue-600 text-white border-b-2 border-blue-600 shadow-md"
+                : "text-gray-600 hover:text-blue-600 hover:bg-blue-50"
+            }`}
+          >
+            <div className="flex items-center justify-center space-x-2">
+              <span>📦</span>
+              <span className="hidden md:inline">{ar.tabs.products}</span>
+            </div>
+          </button>
+          <button
+            onClick={() => setActiveTab("analytics")}
+            className={`flex-1 px-4 lg:px-6 py-4 text-sm font-medium transition-all duration-200 ${
+              activeTab === "analytics"
+                ? "bg-blue-600 text-white border-b-2 border-blue-600 shadow-md"
+                : "text-gray-600 hover:text-blue-600 hover:bg-blue-50"
+            }`}
+          >
+            <div className="flex items-center justify-center space-x-2">
+              <span>📊</span>
+              <span className="hidden md:inline">{ar.tabs.analytics}</span>
+            </div>
+          </button>
+        </div>
       </div>
 
-      {/* Tab Content */}
-      {activeTab === "customers" && (
-        <>
-          <h1 className="text-2xl font-bold mb-4">
-            {ar.titles.Customer_Management}
-          </h1>
-
-          {showCustomerForm && (
-            <FormCustomer
-              initial={editingCustomer || {}}
-              onSubmit={(data) => {
-                if (editingCustomer) {
-                  updateCustomer(editingCustomer.cust_id, data);
-                  setEditingCustomer(null);
-                } else {
-                  addCustomer(data);
-                }
-                setShowCustomerForm(false);
-              }}
-              onCancel={() => {
-                setEditingCustomer(null);
-                setShowCustomerForm(false);
-              }}
-            />
-          )}
-
-          {!showCustomerForm && (
-            <button
-              className="mb-4 px-4 py-2 bg-blue-600 text-white rounded"
-              onClick={() => setShowCustomerForm(true)}
-            >
-              {ar.buttons.Add_Customer}
-            </button>
-          )}
-
-          <CustomersTable
-            customers={customers}
-            onEdit={(c) => {
-              setEditingCustomer(c);
-              setShowCustomerForm(true);
-            }}
-            onDelete={(id) => deleteCustomer(id)}
-            onViewBills={(customerId) => handleViewCustomerBills(customerId)}
-          />
-        </>
-      )}
-
+      {/* Tab Content - Reorder to put Bills first */}
       {activeTab === "bills" && (
         <>
           <h1 className="text-2xl font-bold mb-4">
@@ -420,11 +454,55 @@ export default function Home() {
         </>
       )}
 
-      {activeTab === "transactions" && (
+      {activeTab === "customers" && (
         <>
           <h1 className="text-2xl font-bold mb-4">
-            {ar.titles.Transactions_Management}
+            {ar.titles.Customer_Management}
           </h1>
+
+          {showCustomerForm && (
+            <FormCustomer
+              initial={editingCustomer || {}}
+              onSubmit={(data) => {
+                if (editingCustomer) {
+                  updateCustomer(editingCustomer.cust_id, data);
+                  setEditingCustomer(null);
+                } else {
+                  addCustomer(data);
+                }
+                setShowCustomerForm(false);
+              }}
+              onCancel={() => {
+                setEditingCustomer(null);
+                setShowCustomerForm(false);
+              }}
+            />
+          )}
+
+          {!showCustomerForm && (
+            <button
+              className="mb-4 px-4 py-2 bg-blue-600 text-white rounded"
+              onClick={() => setShowCustomerForm(true)}
+            >
+              {ar.buttons.Add_Customer}
+            </button>
+          )}
+
+          <CustomersTable
+            customers={customers}
+            onEdit={(c) => {
+              setEditingCustomer(c);
+              setShowCustomerForm(true);
+            }}
+            onDelete={(id) => deleteCustomer(id)}
+            onViewBills={(customerId) => handleViewCustomerBills(customerId)}
+          />
+        </>
+      )}
+
+      {activeTab === "transactions" && (
+        <>
+          <h1 className="text-2xl font-bold mb-4">إدارة المدفوعات</h1>
 
           {showTransactionForm && (
             <FormTransaction
@@ -450,7 +528,7 @@ export default function Home() {
               className="mb-4 px-4 py-2 bg-blue-600 text-white rounded"
               onClick={() => setShowTransactionForm(true)}
             >
-              {ar.buttons.Add_Transaction}
+              إضافة مدفوعة
             </button>
           )}
 
@@ -528,10 +606,12 @@ export default function Home() {
       {/* Customer Bills Modal */}
       {showCustomerBillsModal && selectedCustomer && (
         <CustomerBillsModal
+          key={`customer-bills-${selectedCustomer.cust_id}-${billsRefreshKey}`}
           customer={selectedCustomer}
           bills={bills}
           onClose={handleCloseCustomerBillsModal}
           products={products}
+          onBillsUpdated={handleBillsUpdated}
         />
       )}
     </div>

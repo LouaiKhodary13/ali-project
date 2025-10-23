@@ -1,7 +1,6 @@
-// src/app/components/ProductsTable.tsx
-import React from 'react';
-import { ar } from '../lang/ar';
-import { Product } from '@/app/types';
+import React from "react";
+import { ar } from "../lang/ar";
+import { Product } from "@/app/types";
 
 type Props = {
   products: Product[];
@@ -15,76 +14,81 @@ export const ProductsTable: React.FC<Props> = ({
   onDelete,
 }) => {
   return (
-    <div className='relative overflow-x-auto shadow-md sm:rounded-lg'>
-      <table className='w-full text-sm text-left rtl:text-right'>
-        <thead className='text-xs text-white uppercase bg-gray-700'>
-          <tr>
-            <th scope='col' className='px-6 py-3'>
-              {ar.products.name}
-            </th>
-            <th scope='col' className='px-6 py-3'>
-              {ar.products.quantity}
-            </th>
-            <th scope='col' className='px-6 py-3'>
-              <div className='flex items-center'>
-                {ar.products.price}
-                <a href='#'>
-                  <svg
-                    className='w-3 h-3 ms-1.5'
-                    aria-hidden='true'
-                    xmlns='http://www.w3.org/2000/svg'
-                    fill='currentColor'
-                    viewBox='0 0 24 24'>
-                    <path d='M8.574 11.024h6.852a2.075 2.075 0 0 0 1.847-1.086 1.9 1.9 0 0 0-.11-1.986L13.736 2.9a2.122 2.122 0 0 0-3.472 0L6.837 7.952a1.9 1.9 0 0 0-.11 1.986 2.074 2.074 0 0 0 1.847 1.086Zm6.852 1.952H8.574a2.072 2.072 0 0 0-1.847 1.087 1.9 1.9 0 0 0 .11 1.985l3.426 5.05a2.123 2.123 0 0 0 3.472 0l3.427-5.05a1.9 1.9 0 0 0 .11-1.985 2.074 2.074 0 0 0-1.846-1.087Z' />
-                  </svg>
-                </a>
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 p-6">
+      {products.map((p) => (
+        <div
+          key={p.prod_id}
+          className="bg-white rounded-xl shadow-sm border border-gray-200 hover:shadow-lg hover:border-gray-300 transition-all duration-300 overflow-hidden"
+        >
+          {/* Product Name Header */}
+          <div className="bg-gradient-to-r from-purple-50 to-pink-50 p-4 border-b border-gray-100">
+            <h3 className="text-lg font-bold text-gray-900 text-right truncate">
+              {p.prod_name}
+            </h3>
+          </div>
+
+          {/* Product Details in 2 columns */}
+          <div className="p-4">
+            <div className="grid grid-cols-2 gap-4 mb-4">
+              {/* Left Column */}
+              <div className="space-y-3">
+                {/* Quantity */}
+                <div className="text-right">
+                  <div className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-1">
+                    {ar.products.quantity}
+                  </div>
+                  <div className="text-sm text-gray-900 font-medium">
+                    {p.prod_quant || "0"}
+                  </div>
+                </div>
               </div>
-            </th>
-            <th scope='col' className='px-6 py-3'>
-              {ar.strings.Note}
-            </th>
-            <th scope='col' className='px-6 py-3'>
-              {ar.strings.Actions}
-            </th>
-          </tr>
-        </thead>
-        <tbody>
-          {products.map((p, i) => (
-            <tr
-              key={p.prod_id}
-              className={`border-b border-gray-700 ${
-                i % 2 === 0 ? ' bg-gray-800' : 'bg-gray-900'
-              }`}>
-              <th
-                scope='row'
-                className='px-6 py-4 font-medium text-white whitespace-nowrap'>
-                {p.prod_name}
-              </th>
-              <td className='px-6 py-4 text-white font-medium'>
-                {p.prod_quant}
-              </td>
-              <td className='px-6 py-4 text-white font-medium'>
-                {p.prod_price}
-              </td>
-              <td className='px-6 py-4 text-white font-medium'>
-                {p.prod_note}
-              </td>
-              <td className='px-6 py-4 text-right'>
-                <button
-                  onClick={() => onEdit?.(p)}
-                  className='font-medium text-blue-600 dark:text-blue-500 hover:underline mr-4 ml-4'>
-                  {ar.buttons.Edit}
-                </button>
-                <button
-                  onClick={() => onDelete?.(p.prod_id)}
-                  className='font-medium text-red-600 dark:text-red-500 hover:underline'>
-                  {ar.buttons.Delete}
-                </button>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+
+              {/* Right Column */}
+              <div className="space-y-3">
+                {/* Price */}
+                <div className="text-right">
+                  <div className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-1">
+                    {ar.products.price}
+                  </div>
+                  <div className="text-sm text-gray-900 font-medium">
+                    {p.prod_price ? `${p.prod_price} ل.س` : "غير محدد"}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Note - Full width if exists */}
+            {p.prod_note && (
+              <div className="text-right mb-4 p-3 bg-blue-50 rounded-lg border border-blue-200">
+                <div className="text-xs font-medium text-blue-700 uppercase tracking-wide mb-1">
+                  {ar.strings.Note}
+                </div>
+                <div className="text-sm text-blue-800 break-words">
+                  {p.prod_note}
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Actions */}
+          <div className="px-4 pb-4">
+            <div className="flex gap-2">
+              <button
+                onClick={() => onEdit?.(p)}
+                className="flex-1 px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors duration-200 shadow-sm"
+              >
+                {ar.buttons.Edit}
+              </button>
+              <button
+                onClick={() => onDelete?.(p.prod_id)}
+                className="flex-1 px-4 py-2.5 bg-red-600 hover:bg-red-700 text-white text-sm font-medium rounded-lg transition-colors duration-200 shadow-sm"
+              >
+                {ar.buttons.Delete}
+              </button>
+            </div>
+          </div>
+        </div>
+      ))}
     </div>
   );
 };

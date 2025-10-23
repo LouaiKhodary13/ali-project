@@ -19,6 +19,7 @@ export interface BillProduct {
   prod_id: string;
   quantity: number;
   unit_price: number; // Store the price at time of sale
+  custom_name?: string;
 }
 
 export interface Bill {

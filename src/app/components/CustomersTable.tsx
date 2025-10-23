@@ -1,4 +1,3 @@
-// /components/CustomersTable.tsx
 import React from "react";
 import { ar } from "../lang/ar";
 import { Customer } from "../types";
@@ -17,87 +16,92 @@ export const CustomersTable: React.FC<Props> = ({
   onViewBills,
 }) => {
   return (
-    <div className="relative overflow-x-auto shadow-md sm:rounded-lg">
-      <table className="w-full text-sm text-left rtl:text-right">
-        <thead className="text-xs text-white uppercase bg-gray-700">
-          <tr>
-            <th scope="col" className="px-6 py-3">
-              {ar.strings.Name}
-            </th>
-            <th scope="col" className="px-6 py-3">
-              {ar.strings.Address}
-            </th>
-            <th scope="col" className="px-6 py-3">
-              <div className="flex items-center">
-                {ar.strings.Phone}
-                <a href="#">
-                  <svg
-                    className="w-3 h-3 ms-1.5"
-                    aria-hidden="true"
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path d="M8.574 11.024h6.852a2.075 2.075 0 0 0 1.847-1.086 1.9 1.9 0 0 0-.11-1.986L13.736 2.9a2.122 2.122 0 0 0-3.472 0L6.837 7.952a1.9 1.9 0 0 0-.11 1.986 2.074 2.074 0 0 0 1.847 1.086Zm6.852 1.952H8.574a2.072 2.072 0 0 0-1.847 1.087 1.9 1.9 0 0 0 .11 1.985l3.426 5.05a2.123 2.123 0 0 0 3.472 0l3.427-5.05a1.9 1.9 0 0 0 .11-1.985 2.074 2.074 0 0 0-1.846-1.087Z" />
-                  </svg>
-                </a>
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 p-6">
+      {customers.map((c) => (
+        <div
+          key={c.cust_id}
+          className="bg-white rounded-xl shadow-sm border border-gray-200 hover:shadow-lg hover:border-gray-300 transition-all duration-300 overflow-hidden"
+        >
+          {/* Customer Name Header */}
+          <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-4 border-b border-gray-100">
+            <h3 className="text-lg font-bold text-gray-900 text-right truncate">
+              {c.cust_name}
+            </h3>
+          </div>
+
+          {/* Customer Details in 2 columns */}
+          <div className="p-4">
+            <div className="grid grid-cols-2 gap-4 mb-4">
+              {/* Left Column */}
+              <div className="space-y-3">
+                {/* Address */}
+                <div className="text-right">
+                  <div className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-1">
+                    {ar.strings.Address}
+                  </div>
+                  <div className="text-sm text-gray-900 font-medium break-words">
+                    {c.cust_adr || "غير محدد"}
+                  </div>
+                </div>
               </div>
-            </th>
-            <th scope="col" className="px-6 py-3">
-              {ar.strings.Note}
-            </th>
-            <th scope="col" className="px-6 py-3">
-              {ar.strings.Actions}
-            </th>
-          </tr>
-        </thead>
-        <tbody>
-          {customers.map((c, i) => (
-            <tr
-              key={c.cust_id}
-              className={`border-b border-gray-700 ${
-                i % 2 === 0 ? "bg-gray-800" : "bg-gray-900"
-              }`}
-            >
-              <th
-                scope="row"
-                className="px-6 py-4 font-medium text-white whitespace-nowrap"
+
+              {/* Right Column */}
+              <div className="space-y-3">
+                {/* Phone */}
+                <div className="text-right">
+                  <div className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-1">
+                    {ar.strings.Phone}
+                  </div>
+                  <div className="text-sm text-gray-900 font-medium">
+                    {c.cust_phone || "غير محدد"}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Note - Full width if exists */}
+            {c.cust_note && (
+              <div className="text-right mb-4 p-3 bg-yellow-50 rounded-lg border border-yellow-200">
+                <div className="text-xs font-medium text-yellow-700 uppercase tracking-wide mb-1">
+                  {ar.strings.Note}
+                </div>
+                <div className="text-sm text-yellow-800 break-words">
+                  {c.cust_note}
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Actions */}
+          <div className="px-4 pb-4">
+            <div className="flex flex-col gap-2">
+              {/* Primary Action - View Bills */}
+              <button
+                onClick={() => onViewBills?.(c.cust_id)}
+                className="w-full px-4 py-2.5 bg-green-600 hover:bg-green-700 text-white text-sm font-medium rounded-lg transition-colors duration-200 shadow-sm"
               >
-                {c.cust_name}
-              </th>
-              <td className="px-6 py-4 font-medium text-white whitespace-nowrap">
-                {c.cust_adr}
-              </td>
-              <td className="px-6 py-4 font-medium text-white whitespace-nowrap">
-                {c.cust_phone}
-              </td>
-              <td className="px-6 py-4 font-medium text-white whitespace-nowrap">
-                {c.cust_note}
-              </td>
-              <td className="px-6 py-4 text-right">
-                <button
-                  onClick={() => onViewBills?.(c.cust_id)}
-                  className="font-medium text-green-600 dark:text-green-500 hover:underline mr-4 ml-4"
-                >
-                  عرض الفواتير
-                </button>
+                عرض الفواتير
+              </button>
+
+              {/* Secondary Actions */}
+              <div className="flex gap-2">
                 <button
                   onClick={() => onEdit?.(c)}
-                  className="font-medium text-blue-600 dark:text-blue-500 hover:underline mr-4 ml-4"
+                  className="flex-1 px-3 py-2 bg-blue-50 hover:bg-blue-100 text-blue-700 hover:text-blue-800 text-sm font-medium rounded-lg transition-colors duration-200 border border-blue-200"
                 >
                   {ar.buttons.Edit}
                 </button>
                 <button
                   onClick={() => onDelete?.(c.cust_id)}
-                  className="font-medium text-red-600 dark:text-red-500 hover:underline"
+                  className="flex-1 px-3 py-2 bg-red-50 hover:bg-red-100 text-red-700 hover:text-red-800 text-sm font-medium rounded-lg transition-colors duration-200 border border-red-200"
                 >
                   {ar.buttons.Delete}
                 </button>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      ))}
     </div>
   );
 };

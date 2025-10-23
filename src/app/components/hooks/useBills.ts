@@ -1,81 +1,74 @@
 // hooks/useBills.ts
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Bill } from "@/app/types";
 import { billService } from "@/app/services/billService";
 
 export function useBills() {
   const [bills, setBills] = useState<Bill[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
 
-  // Load bills on mount
-  useEffect(() => {
-    loadBills();
-  }, []);
-
-  const loadBills = async () => {
+  const fetchBills = useCallback(async () => {
     try {
       setLoading(true);
-      setError(null);
       const data = await billService.getAll();
       setBills(data);
-    } catch (err) {
-      setError('Failed to load bills');
-      console.error(err);
+    } catch (error) {
+      console.error("Failed to fetch bills:", error);
     } finally {
       setLoading(false);
     }
+  }, []);
+
+  useEffect(() => {
+    fetchBills();
+  }, [fetchBills]);
+
+  const addBill = async (bill: Omit<Bill, "bill_id">) => {
+    const newBill: Bill = {
+      ...bill,
+      bill_id: crypto?.randomUUID?.() ?? Date.now().toString(),
+    };
+
+    await billService.create(newBill);
+    await fetchBills();
   };
 
-  const addBill = async (input: Omit<Bill, "bill_id">) => {
-    try {
-      const newBill: Bill = {
-        ...input,
-        bill_id: crypto?.randomUUID?.() ?? Date.now().toString(),
-      };
-      
-      await billService.create(newBill);
-      setBills((prev) => [newBill, ...prev]);
-      return newBill;
-    } catch (err) {
-      setError('Failed to add bill');
-      console.error(err);
-      throw err;
-    }
-  };
-
-  const updateBill = async (id: string, patch: Partial<Bill>) => {
-    try {
-      await billService.update(id, patch);
-      setBills((prev) =>
-        prev.map((b) => (b.bill_id === id ? { ...b, ...patch } : b))
-      );
-    } catch (err) {
-      setError('Failed to update bill');
-      console.error(err);
-      throw err;
-    }
+  const updateBill = async (id: string, bill: Partial<Bill>) => {
+    await billService.update(id, bill);
+    await fetchBills();
   };
 
   const deleteBill = async (id: string) => {
-    try {
-      await billService.delete(id);
-      setBills((prev) => prev.filter((b) => b.bill_id !== id));
-    } catch (err) {
-      setError('Failed to delete bill');
-      console.error(err);
-      throw err;
-    }
+    await billService.delete(id);
+    await fetchBills();
   };
 
-  return { 
-    bills, 
-    addBill, 
-    updateBill, 
-    deleteBill, 
-    loading, 
-    error,
-    refetch: loadBills 
+  const refreshBills = useCallback(async () => {
+    try {
+      console.log("refreshBills: Fetching from database...");
+
+      // ✅ Fetch from database service (IndexedDB)
+      const data = await billService.getAll();
+
+      console.log("refreshBills: Found", data.length, "bills");
+
+      // Create NEW array reference to trigger React re-render
+      setBills([...data]);
+
+      console.log("refreshBills: State updated with new reference");
+    } catch (error) {
+      console.error("refreshBills: Error fetching bills:", error);
+      setBills([]);
+    }
+  }, []);
+
+  return {
+    bills,
+    loading,
+    addBill,
+    updateBill,
+    deleteBill,
+    refreshBills,
   };
 }
